@@ -74,8 +74,7 @@ async function startServer() {
         }
       });
       if (!response.ok) throw new Error("Failed to fetch deals");
-      const text = await response.text();
-      let data: any; try { data = JSON.parse(text); } catch { throw new Error("Invalid JSON from GamerPower deals"); }
+      let data = await response.json();
       
       // Limit to items to avoid taking forever
       if (Array.isArray(data)) {
@@ -107,8 +106,7 @@ async function startServer() {
       const resLoot = await fetch("https://www.gamerpower.com/api/giveaways?type=loot", { headers });
       
       if (resLoot.ok) {
-        const text = await resLoot.text();
-        try { data = JSON.parse(text); } catch { throw new Error("Invalid JSON from GamerPower loot"); }
+        data = await resLoot.json();
       }
       
       const { search } = req.query;
@@ -148,8 +146,7 @@ async function startServer() {
         console.error("Cheapshark bad status:", response.status, response.statusText);
         throw new Error("Failed to fetch cheapshark deals");
       }
-      const text = await response.text();
-      let data; try { data = JSON.parse(text); } catch { throw new Error("Invalid JSON from CheapShark"); }
+      const data = await response.json();
       res.json(data);
     } catch (error) {
       console.error("Error fetching cheapshark deals:", error);
@@ -174,8 +171,7 @@ async function startServer() {
       const res = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`, {
         method: "POST"
       });
-      const text = await res.text();
-      let data; try { data = JSON.parse(text); } catch { throw new Error("Invalid JSON from Twitch OAuth"); }
+      const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch token");
       twitchAccessToken = data.access_token;
       tokenExpiration = Date.now() + (data.expires_in * 1000) - 60000;
@@ -246,8 +242,7 @@ async function startServer() {
     });
     
     if (!response.ok) throw new Error("Failed to fetch from IGDB");
-    const text = await response.text();
-    let data; try { data = JSON.parse(text); } catch { throw new Error("Invalid JSON from IGDB"); }
+    const data = await response.json();
     
     if (data && data.length > 0) {
       const selectedGame = data.find((game: any) => game.name?.toLowerCase() === cleanTitle.toLowerCase()) || data[0];
@@ -411,14 +406,8 @@ async function startServer() {
     });
     incrementRawgUsage();
     
-    if (!response.ok) {
-      if (response.status === 401 || response.status === 403) {
-        throw new Error("Failed to fetch from RAWG: Invalid API Key");
-      }
-      throw new Error(`Failed to fetch from RAWG: ${response.status} ${response.statusText}`);
-    }
-    const text = await response.text();
-    let data; try { data = JSON.parse(text); } catch { throw new Error("Invalid JSON from RAWG"); }
+    if (!response.ok) throw new Error("Failed to fetch from RAWG");
+    const data = await response.json();
     
     return data.results && data.results.length > 0 ? data.results[0] : { not_found: true };
   }
@@ -466,21 +455,6 @@ async function startServer() {
   });
 
 
-  app.post("/api/unsubscribe", async (req, res) => {
-    const { email } = req.body;
-    if (!email || !email.includes('@')) {
-      return res.status(400).json({ error: "Invalid email" });
-    }
-
-    if (!subscribedEmails.has(email)) {
-      return res.status(400).json({ error: "Email is not subscribed" });
-    }
-
-    subscribedEmails.delete(email);
-    console.log(`Email unsubscribed: ${email}`);
-    res.json({ message: "Unsubscribed successfully. You will no longer receive emails." });
-  });
-
   // Handle newsletter subscription
   app.post("/api/subscribe", async (req, res) => {
     const { email } = req.body;
@@ -502,9 +476,7 @@ async function startServer() {
         to: email,
         subject: "Welcome to GameDeals!",
         text: "You have successfully subscribed to get live, free game deals!"
-      }).catch(err => {
-        console.log("Welcome email not sent (SMTP might be misconfigured/invalid credentials).");
-      });
+      }).catch(err => console.error("Failed to send welcome email:", err));
     }
 
     res.json({ message: "Subscribed successfully! Emails will be sent for new deals." });
@@ -527,8 +499,6 @@ async function startServer() {
           to: email,
           subject: `Check out this free game deal: ${dealTitle}`,
           text: `Don't miss this free game deal!\n\n${dealTitle}\nGet it here: ${dealUrl}\n\nShared via GameDeals.`
-        }).catch(err => {
-          console.log("Share email not sent (SMTP might be misconfigured/invalid credentials).");
         });
       } else {
         // Just simulate success if no real SMTP is available
@@ -536,8 +506,8 @@ async function startServer() {
       }
       res.json({ message: "Deal shared successfully!" });
     } catch (error) {
-      console.log("Error sending share email (SMTP might be misconfigured).");
-      res.json({ message: "Deal shared successfully! (Simulated)" });
+      console.error("Error sending share email:", error);
+      res.status(500).json({ error: "Failed to send email" });
     }
   });
 

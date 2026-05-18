@@ -1,6 +1,18 @@
 import { motion } from "motion/react";
 import { Sparkles, TrendingUp } from "lucide-react";
 
+const PARTICLES = Array.from({ length: 15 }, (_, index) => {
+  const seed = index + 1;
+  return {
+    width: (seed * 7) % 4 + 1,
+    height: (seed * 11) % 4 + 1,
+    left: (seed * 37) % 100,
+    top: (seed * 53) % 100,
+    duration: ((seed * 17) % 30) / 10 + 2,
+    delay: ((seed * 13) % 20) / 10,
+  };
+});
+
 export function HeroSection({ onExploreClick, onTrendingClick }: { onExploreClick?: () => void, onTrendingClick?: () => void }) {
   return (
     <div className="relative w-full rounded-3xl overflow-hidden bg-black border border-white/10 mb-12 min-h-[400px] flex items-center">
@@ -9,25 +21,25 @@ export function HeroSection({ onExploreClick, onTrendingClick }: { onExploreClic
       
       {/* Animated Floating Particles Mock */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(15)].map((_, i) => (
+        {PARTICLES.map((particle, i) => (
           <motion.div
             key={i}
             className="absolute bg-white/20 rounded-full blur-[1px]"
             style={{
-              width: Math.random() * 4 + 1 + "px",
-              height: Math.random() * 4 + 1 + "px",
-              left: Math.random() * 100 + "%",
-              top: Math.random() * 100 + "%",
+              width: particle.width + "px",
+              height: particle.height + "px",
+              left: particle.left + "%",
+              top: particle.top + "%",
             }}
             animate={{
               y: [0, -40, 0],
               opacity: [0.2, 1, 0.2]
             }}
             transition={{
-              duration: Math.random() * 3 + 2,
+              duration: particle.duration,
               repeat: Infinity,
               ease: "easeInOut",
-              delay: Math.random() * 2,
+              delay: particle.delay,
             }}
           />
         ))}

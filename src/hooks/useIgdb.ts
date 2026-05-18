@@ -10,18 +10,23 @@ export function useIgdb(title: string) {
     
     // First try IGDB
     fetch(`/api/igdb?title=${encodeURIComponent(title)}`)
-      .then(res => res.json())
+      .then(async res => {
+          const text = await res.text();
+          try { return JSON.parse(text); } catch { return null; }
+      })
       .then(json => {
         if (!isMounted) return;
-        if (!json.not_found && !json.error) {
+        if (json && !json.not_found && !json.error) {
            setData(json);
         } else {
            // Fallback to RAWG if IGDB didn't find it or no keys configured
            return fetch(`/api/rawg?title=${encodeURIComponent(title)}`);
         }
       })
-      .then(res => {
-        if (res && isMounted) return res.json();
+      .then(async res => {
+        if (!res || !isMounted) return null;
+        const text = await res.text();
+        try { return JSON.parse(text); } catch { return null; }
       })
       .then(json => {
          if (json && !json.not_found && !json.error && isMounted) {

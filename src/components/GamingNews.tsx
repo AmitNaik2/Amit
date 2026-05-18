@@ -15,31 +15,46 @@ export function GamingNews() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/news")
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setNews(data);
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Failed to fetch news:", err);
-        setLoading(false);
-      });
+    let isMounted = true;
+
+    const fetchNews = () => {
+      fetch("/api/news")
+        .then(async res => {
+          const text = await res.text();
+          try { return JSON.parse(text); } catch { throw new Error("Invalid JSON from /api/news"); }
+        })
+        .then(data => {
+          if (isMounted && Array.isArray(data)) {
+            setNews(data);
+          }
+          if (isMounted) setLoading(false);
+        })
+        .catch(err => {
+          console.error("Failed to fetch news:", err);
+          if (isMounted) setLoading(false);
+        });
+    };
+
+    fetchNews();
+    const intervalId = window.setInterval(fetchNews, 30 * 60 * 1000);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(intervalId);
+    };
   }, []);
 
   return (
     <div className="bg-[#0A0A0B] border border-white/10 rounded-2xl p-5 overflow-hidden mt-6 relative group">
       <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-      
+
       <div className="flex items-center justify-between mb-4 relative z-10">
         <div className="flex items-center gap-2">
           <Newspaper className="w-4 h-4 text-cyan-400" />
           <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-white">Gaming News</h3>
         </div>
       </div>
-      
+
       <div className="space-y-4 relative z-10">
         {loading ? (
           <div className="py-4 text-center text-xs text-white/50 animate-pulse">Crawling latest news...</div>
@@ -56,11 +71,11 @@ export function GamingNews() {
               className="group/news cursor-pointer block border-b border-white/5 pb-3 last:border-0 last:pb-0"
             >
               <div className="flex items-center gap-2 mb-1">
-                 <span className={`text-[9px] uppercase tracking-widest font-bold text-cyan-400`}>
-                   {item.type}
-                 </span>
-                 <span className="text-[9px] text-white/30">•</span>
-                 <span className="text-[9px] text-white/30 truncate">{item.time}</span>
+                <span className="text-[9px] uppercase tracking-widest font-bold text-cyan-400">
+                  {item.type}
+                </span>
+                <span className="text-[9px] text-white/30">/</span>
+                <span className="text-[9px] text-white/30 truncate">{item.time}</span>
               </div>
               <p className="text-xs font-bold text-white/80 group-hover/news:text-cyan-400 transition-colors line-clamp-2 pr-4 relative">
                 {item.title}

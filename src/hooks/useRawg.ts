@@ -10,9 +10,12 @@ export function useRawg(title: string) {
     // but a simple approach:
     const timer = setTimeout(() => {
       fetch(`/api/rawg?title=${encodeURIComponent(title)}`)
-        .then(res => res.json())
+        .then(async res => {
+          const text = await res.text();
+          try { return JSON.parse(text); } catch { return null; }
+        })
         .then(json => {
-          if (!json.not_found && !json.error) setData(json);
+          if (json && !json.not_found && !json.error) setData(json);
         })
         .catch(err => console.error(err));
     }, 1000 + Math.random() * 2000); // stagger to prevent burst

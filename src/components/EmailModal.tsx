@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Send, CheckCircle2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
@@ -12,10 +12,22 @@ interface EmailModalProps {
 
 export function EmailModal({ isOpen, onClose, dealTitle, dealUrl }: EmailModalProps) {
   const [email, setEmail] = useState("");
+  const [action, setAction] = useState<"subscribe" | "unsubscribe">("subscribe");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
 
   const isShareMode = !!dealTitle && !!dealUrl;
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -24,7 +36,10 @@ export function EmailModal({ isOpen, onClose, dealTitle, dealUrl }: EmailModalPr
     setStatus("loading");
 
     try {
-      const endpoint = isShareMode ? "/api/share" : "/api/subscribe";
+      let endpoint = "/api/subscribe";
+      if (isShareMode) endpoint = "/api/share";
+      else if (action === "unsubscribe") endpoint = "/api/unsubscribe";
+
       const payload = isShareMode 
         ? { email, dealTitle, dealUrl }
         : { email };
@@ -35,7 +50,9 @@ export function EmailModal({ isOpen, onClose, dealTitle, dealUrl }: EmailModalPr
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      let data;
+      try { data = JSON.parse(text); } catch { throw new Error("Invalid response from server"); }
 
       if (!response.ok) {
         throw new Error(data.error || "Something went wrong");
@@ -83,6 +100,8 @@ export function EmailModal({ isOpen, onClose, dealTitle, dealUrl }: EmailModalPr
                 </h2>
                 <button
                   onClick={onClose}
+                  aria-label="Close modal"
+                  title="Close"
                   className="p-2 text-white/40 transition-colors rounded-full hover:text-white hover:bg-white/10"
                 >
                   <X className="w-5 h-5" />
@@ -108,6 +127,32 @@ export function EmailModal({ isOpen, onClose, dealTitle, dealUrl }: EmailModalPr
                   </motion.div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-4">
+                    {!isShareMode && (
+                      <div className="flex items-center gap-4 mb-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input 
+                            type="radio" 
+                            name="modalAction" 
+                            value="subscribe" 
+                            checked={action === "subscribe"} 
+                            onChange={() => setAction("subscribe")}
+                            className="accent-[#7C3AED]"
+                          />
+                          <span className="text-xs text-white/70">Subscribe</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input 
+                            type="radio" 
+                            name="modalAction" 
+                            value="unsubscribe" 
+                            checked={action === "unsubscribe"} 
+                            onChange={() => setAction("unsubscribe")}
+                            className="accent-rose-500"
+                          />
+                          <span className="text-xs text-white/70">Unsubscribe</span>
+                        </label>
+                      </div>
+                    )}
                     <div className="space-y-2">
                       <label htmlFor="email" className="text-[11px] uppercase tracking-[0.3em] font-bold text-white/50">
                         Email Address
@@ -135,7 +180,9 @@ export function EmailModal({ isOpen, onClose, dealTitle, dealUrl }: EmailModalPr
                         "w-full py-3 px-4 rounded flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all active:scale-[0.98] mt-2",
                         status === "loading"
                           ? "bg-white/10 text-white/40 cursor-not-allowed"
-                          : "bg-[#7C3AED] text-white hover:bg-[#8A4AF3]"
+                          : (!isShareMode && action === "unsubscribe")
+                            ? "bg-rose-500 text-white hover:bg-rose-600"
+                            : "bg-[#7C3AED] text-white hover:bg-[#8A4AF3]"
                       )}
                     >
                       {status === "loading" ? (
@@ -147,7 +194,7 @@ export function EmailModal({ isOpen, onClose, dealTitle, dealUrl }: EmailModalPr
                       ) : (
                         <>
                           <Send className="w-4 h-4" />
-                          {isShareMode ? "Send Deal" : "Subscribe"}
+                          {isShareMode ? "Send Deal" : action === "subscribe" ? "Subscribe" : "Unsubscribe"}
                         </>
                       )}
                     </button>

@@ -1,7 +1,24 @@
-import { motion } from "motion/react";
-import { Gamepad2, Search, Bell, Heart, User, MessageSquare } from "lucide-react";
+import { Gamepad2, Search, Bell, User, MessageSquare } from "lucide-react";
 
-export function TopNavbar() {
+interface TopNavbarProps {
+  searchValue: string;
+  onSearchChange: (value: string) => void;
+  onHomeClick: () => void;
+  onFreeGamesClick: () => void;
+  onFreeDlcClick: () => void;
+  onTrendingClick: () => void;
+  onSubscribeClick: () => void;
+}
+
+export function TopNavbar({
+  searchValue,
+  onSearchChange,
+  onHomeClick,
+  onFreeGamesClick,
+  onFreeDlcClick,
+  onTrendingClick,
+  onSubscribeClick,
+}: TopNavbarProps) {
   return (
     <nav className="sticky top-0 z-50 bg-[#0A0A0B]/80 backdrop-blur-2xl border-b border-white/10">
       <div className="container px-4 mx-auto max-w-7xl">
@@ -18,10 +35,10 @@ export function TopNavbar() {
 
           {/* Links (Desktop) */}
           <div className="hidden lg:flex items-center gap-6">
-            <a href="#" className="text-sm font-bold text-white hover:text-[#7C3AED] transition-colors">Home</a>
-            <a href="#" className="text-sm font-bold text-white/60 hover:text-white transition-colors">Free Games</a>
-            <a href="#" className="text-sm font-bold text-white/60 hover:text-white transition-colors">Free Weekends</a>
-            <a href="#" className="text-sm font-bold text-white/60 hover:text-white transition-colors">Trending</a>
+            <button type="button" onClick={onHomeClick} className="text-sm font-bold text-white hover:text-[#7C3AED] transition-colors">Home</button>
+            <button type="button" onClick={onFreeGamesClick} className="text-sm font-bold text-white/60 hover:text-white transition-colors">Free Games</button>
+            <button type="button" onClick={onFreeDlcClick} className="text-sm font-bold text-white/60 hover:text-white transition-colors">Free DLC</button>
+            <button type="button" onClick={onTrendingClick} className="text-sm font-bold text-white/60 hover:text-white transition-colors">Trending</button>
           </div>
 
           {/* Right Side */}
@@ -30,21 +47,23 @@ export function TopNavbar() {
               <Search className="w-4 h-4 text-white/40 absolute left-3 top-1/2 -translate-y-1/2 group-hover:text-[#7C3AED] transition-colors" />
               <input 
                 type="text"
+                value={searchValue}
+                onChange={(event) => onSearchChange(event.target.value)}
                 placeholder="Search games..."
                 className="w-48 xl:w-64 bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] transition-all placeholder:text-white/30"
               />
             </div>
 
-            <button className="hidden sm:flex items-center justify-center w-9 h-9 rounded-full bg-[#5865F2]/20 text-[#5865F2] hover:bg-[#5865F2] hover:text-white transition-all">
+            <button type="button" onClick={onSubscribeClick} aria-label="Join community" title="Join community" className="hidden sm:flex items-center justify-center w-9 h-9 rounded-full bg-[#5865F2]/20 text-[#5865F2] hover:bg-[#5865F2] hover:text-white transition-all">
               <MessageSquare className="w-4 h-4 fill-current" />
             </button>
-            <button className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all text-white/70 relative">
+            <button type="button" onClick={onSubscribeClick} aria-label="Get deal alerts" title="Get deal alerts" className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all text-white/70 relative">
               <Bell className="w-4 h-4" />
               <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-black animate-pulse"></span>
             </button>
 
             <div className="flex items-center gap-2 pl-3 ml-1 border-l border-white/10 shrink-0">
-               <button className="w-9 h-9 rounded-full bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all text-white/70">
+               <button type="button" onClick={onSubscribeClick} aria-label="Open alert preferences" title="Open alert preferences" className="w-9 h-9 rounded-full bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all text-white/70">
                  <User className="w-4 h-4" />
                </button>
             </div>

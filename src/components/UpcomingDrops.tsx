@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { Trophy, ArrowRight, BadgeCheck } from "lucide-react";
 import { type GameDeal } from "../types";
 
-export function UpcomingDrops({ deals }: { deals: GameDeal[] }) {
+export function UpcomingDrops({ deals, onViewAll }: { deals: GameDeal[], onViewAll?: () => void }) {
   // Sort by highest worth, ignoring "N/A"
   const topDeals = [...deals].sort((a, b) => {
     const worthA = parseFloat(a.worth === "N/A" ? "0" : a.worth.replace(/[^0-9.]/g, '')) || 0;
@@ -45,7 +45,7 @@ export function UpcomingDrops({ deals }: { deals: GameDeal[] }) {
         ))}
       </div>
       
-      <button className="w-full mt-4 py-2 border border-white/10 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white/50 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center gap-1">
+      <button onClick={onViewAll} type="button" className="w-full mt-4 py-2 border border-white/10 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white/50 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center gap-1">
         View All <ArrowRight className="w-3 h-3" />
       </button>
     </div>

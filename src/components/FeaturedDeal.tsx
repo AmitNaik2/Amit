@@ -1,8 +1,10 @@
 import { motion } from "motion/react";
+import { type MouseEvent } from "react";
 import { type GameDeal } from "../types";
 import { Countdown } from "./Countdown";
 import { ExternalLink, BadgeCheck } from "lucide-react";
 import { useIgdb } from "../hooks/useIgdb";
+import { openExternalUrl } from "../lib/utils";
 
 export function FeaturedDeal({ deal }: { deal: GameDeal }) {
   const gameInfo = useIgdb(deal?.title);
@@ -15,6 +17,11 @@ export function FeaturedDeal({ deal }: { deal: GameDeal }) {
   const liveViewers = 40 + Math.floor((deal.users || 0) / 500) + (deal.title.length % 100);
 
   const bgImage = gameInfo?.background_image || deal.image || deal.thumbnail;
+
+  const openDeal = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    openExternalUrl(deal.open_giveaway_url, "_self");
+  };
 
   return (
     <motion.div 
@@ -33,7 +40,7 @@ export function FeaturedDeal({ deal }: { deal: GameDeal }) {
       
       <div className="absolute top-6 left-6 z-20 px-3 py-1 bg-[#7C3AED] text-white text-[10px] font-bold uppercase tracking-widest rounded shadow-lg backdrop-blur-md flex items-center gap-2">
         Featured Freebie
-        {gameInfo?.rating && <span className="ml-2 pl-2 border-l border-white/30 text-amber-400">★ {Math.round(gameInfo.rating)}</span>}
+        {gameInfo?.rating && <span className="ml-2 pl-2 border-l border-white/30 text-amber-400">STAR {Math.round(gameInfo.rating)}</span>}
       </div>
 
       <div className="absolute bottom-8 left-6 sm:left-8 z-20 max-w-full sm:max-w-[80%] pr-6">
@@ -45,13 +52,13 @@ export function FeaturedDeal({ deal }: { deal: GameDeal }) {
           <span className="bg-[#7C3AED] text-white px-2 py-0.5 rounded shadow-[0_0_15px_rgba(124,58,237,0.5)]">
              AI SCORE: {dealScore}
           </span>
-          <span>•</span>
+          <span aria-hidden="true">/</span>
           <span>{deal.type}</span>
           <span className="text-cyan-400 animate-pulse hidden sm:inline-block">
-             • {liveViewers} VIEWING
+             / {liveViewers} VIEWING
           </span>
         </div>
-        <a href={deal.open_giveaway_url} target="_blank" rel="noreferrer" className="block w-fit">
+        <a href={deal.open_giveaway_url} onClick={openDeal} target="_self" rel="noreferrer" className="block w-fit">
           <h2 className="text-3xl sm:text-5xl font-serif italic mb-3 text-white leading-tight hover:text-[#7C3AED] transition-colors">
             {deal.title}
           </h2>
@@ -62,7 +69,8 @@ export function FeaturedDeal({ deal }: { deal: GameDeal }) {
         <div className="flex flex-wrap items-center gap-4">
           <a
             href={deal.open_giveaway_url}
-            target="_blank"
+            onClick={openDeal}
+            target="_self"
             rel="noreferrer"
             className="px-6 py-3 bg-white text-black text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-[#7C3AED] hover:text-white transition-colors flex items-center gap-2 rounded-sm"
           >

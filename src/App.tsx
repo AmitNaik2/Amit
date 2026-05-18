@@ -1,12 +1,11 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Gamepad2, Bell, RefreshCw, AlertCircle, RefreshCcw, CheckCircle2, Search, Filter } from "lucide-react";
+import { Gamepad2, RefreshCw, AlertCircle, RefreshCcw, CheckCircle2, Search, Filter } from "lucide-react";
 import { DealCard } from "./components/DealCard";
 import { EmailModal } from "./components/EmailModal";
 import { type GameDeal } from "./types";
-import { getDealRarity, type RarityLevel, isTrustedStore } from "./lib/deal-utils";
-import { formatDistanceToNow } from "date-fns";
-import { cn } from "./lib/utils";
+import { getDealRarity, type RarityLevel } from "./lib/deal-utils";
+import { cn, openExternalUrl } from "./lib/utils";
 import { FeaturedDeal } from "./components/FeaturedDeal";
 import { LiveFeed } from "./components/LiveFeed";
 import { UpcomingDrops } from "./components/UpcomingDrops";
@@ -16,6 +15,7 @@ import { HeroSection } from "./components/HeroSection";
 
 function InlineSubscribe() {
   const [email, setEmail] = useState("");
+  const [action, setAction] = useState<"subscribe" | "unsubscribe">("subscribe");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
 
@@ -24,7 +24,8 @@ function InlineSubscribe() {
     if (!email) return;
     setStatus("loading");
     try {
-      const response = await fetch("/api/subscribe", {
+      const endpoint = action === "subscribe" ? "/api/subscribe" : "/api/unsubscribe";
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -39,12 +40,12 @@ function InlineSubscribe() {
       }, 4000);
     } catch (err: any) {
       setStatus("error");
-      setMessage(err.message || "Failed to subscribe.");
+      setMessage(err.message || "Failed to submit.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white/5 p-6 rounded-2xl border border-white/10 text-left relative overflow-hidden w-full max-w-md mt-10">
+    <form onSubmit={handleSubmit} className="bg-white/5 p-6 rounded-2xl border border-white/10 text-left relative overflow-hidden w-full max-w-md mx-auto mt-10">
       <h4 className="text-lg font-serif italic mb-1 text-white">Never miss a drop.</h4>
       <p className="text-[11px] text-white/40 mb-4 tracking-tight">Instant email alerts for amazing deals and limited free games.</p>
       
@@ -62,6 +63,31 @@ function InlineSubscribe() {
         )}
       </AnimatePresence>
 
+      <div className="flex items-center gap-4 mb-4">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input 
+            type="radio" 
+            name="action" 
+            value="subscribe" 
+            checked={action === "subscribe"} 
+            onChange={() => setAction("subscribe")}
+            className="accent-[#7C3AED]"
+          />
+          <span className="text-xs text-white/70">Subscribe</span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input 
+            type="radio" 
+            name="action" 
+            value="unsubscribe" 
+            checked={action === "unsubscribe"} 
+            onChange={() => setAction("unsubscribe")}
+            className="accent-rose-500"
+          />
+          <span className="text-xs text-white/70">Unsubscribe</span>
+        </label>
+      </div>
+
       <div className="relative">
         <input 
           type="email" 
@@ -69,14 +95,19 @@ function InlineSubscribe() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="your@email.com" 
           disabled={status === 'loading'}
-          className="w-full bg-black/40 border border-white/10 rounded-lg py-3 px-4 text-xs focus:outline-none focus:border-[#7C3AED] transition-colors text-white placeholder:text-white/30 disabled:opacity-50" 
+          className="w-full bg-black/40 border border-white/10 rounded-lg py-3 pl-4 pr-[100px] text-xs focus:outline-none focus:border-[#7C3AED] transition-colors text-white placeholder:text-white/30 disabled:opacity-50" 
         />
         <button 
           type="submit"
           disabled={status === 'loading' || !email}
-          className="absolute right-2 top-2 h-8 px-4 bg-[#7C3AED] hover:bg-white hover:text-black transition-colors text-white text-[10px] font-bold uppercase tracking-widest rounded disabled:opacity-50"
+          className={cn(
+            "absolute right-2 top-2 h-8 px-4 transition-colors text-white text-[10px] font-bold uppercase tracking-widest rounded disabled:opacity-50",
+            action === "subscribe" 
+              ? "bg-[#7C3AED] hover:bg-white hover:text-black" 
+              : "bg-rose-500 hover:bg-rose-600"
+          )}
         >
-          {status === 'loading' ? '...' : 'Join'}
+          {status === 'loading' ? '...' : (action === "subscribe" ? 'Join' : 'Leave')}
         </button>
       </div>
       {status === 'error' && <p className="text-rose-500 text-[10px] mt-2">{message}</p>}
@@ -126,7 +157,9 @@ export default function App() {
       }
       
       let allDeals: GameDeal[] = [];
-      const data = await gamerpowerRes.json();
+      const text = await gamerpowerRes.text();
+      let data;
+      try { data = JSON.parse(text); } catch { throw new Error("Invalid JSON from /api/deals"); }
       if (data.status !== 0 && Array.isArray(data)) {
         allDeals = data.filter((d: any) => d.type === "Game" || d.type === "Early Access");
       }
@@ -150,7 +183,9 @@ export default function App() {
       if (!dbRes.ok) {
          throw new Error(`Failed to load Free DLC (HTTP ${dbRes.status})`);
       }
-      const data = await dbRes.json();
+      const text = await dbRes.text();
+      let data;
+      try { data = JSON.parse(text); } catch { throw new Error("Invalid JSON from /api/loot"); }
       setDlcDeals(data);
     } catch (err: any) {
       console.error(err);
@@ -167,7 +202,9 @@ export default function App() {
       if (!cheapsharkRes.ok) {
          throw new Error(`Failed to load Premium Deals (HTTP ${cheapsharkRes.status})`);
       }
-      const csData = await cheapsharkRes.json();
+      const text = await cheapsharkRes.text();
+      let csData;
+      try { csData = JSON.parse(text); } catch { throw new Error("Invalid JSON from /api/cheapshark-deals"); }
         const csDeals: GameDeal[] = csData.map((cs: any) => ({
           id: `cs_${cs.dealID}`,
           title: cs.title,
@@ -224,8 +261,47 @@ export default function App() {
     setIsModalOpen(true);
   };
 
-  const scrollToSubscribe = () => {
+  const openSubscribeModal = () => {
+    setShareData(null);
+    setIsModalOpen(true);
+  };
+
+  const scrollToDeals = () => {
+    requestAnimationFrame(() => {
+      document.getElementById('deals-tabs')?.scrollIntoView({ behavior: 'smooth' });
+    });
+  };
+
+  const goHome = () => {
+    setActiveTab("Games");
+    setSelectedRarity("All");
+    setPlatformSearch("");
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const goFreeGames = () => {
+    setActiveTab("Games");
+    setSelectedRarity("All");
+    setPlatformSearch("");
+    scrollToDeals();
+  };
+
+  const goFreeDlc = () => {
+    setActiveTab("DLC");
+    setLootSearch("");
+    scrollToDeals();
+  };
+
+  const goTrending = () => {
+    setActiveTab("Premium");
+    setPremiumSearch("");
+    scrollToDeals();
+  };
+
+  const handleNavbarSearch = (value: string) => {
+    setActiveTab("Games");
+    setSelectedRarity("All");
+    setPlatformSearch(value);
   };
 
   // UI for loading state
@@ -245,18 +321,20 @@ export default function App() {
 
   return (
     <div className="min-h-screen font-sans text-white bg-[#050505] selection:bg-[#7C3AED] selection:text-white relative">
-      <TopNavbar />
+      <TopNavbar
+        searchValue={platformSearch}
+        onSearchChange={handleNavbarSearch}
+        onHomeClick={goHome}
+        onFreeGamesClick={goFreeGames}
+        onFreeDlcClick={goFreeDlc}
+        onTrendingClick={goTrending}
+        onSubscribeClick={openSubscribeModal}
+      />
 
       <main className="container px-4 py-8 mx-auto max-w-7xl">
         <HeroSection 
-          onExploreClick={() => {
-            setActiveTab("Games");
-            document.getElementById('deals-tabs')?.scrollIntoView({ behavior: 'smooth' });
-          }}
-          onTrendingClick={() => {
-            setActiveTab("Premium");
-            document.getElementById('deals-tabs')?.scrollIntoView({ behavior: 'smooth' });
-          }}
+          onExploreClick={goFreeGames}
+          onTrendingClick={goTrending}
         />
 
         {/* Error State */}
@@ -367,7 +445,7 @@ export default function App() {
                <FeaturedDeal deal={deals[0]} />
             )}
 
-            <div className="grid gap-6 sm:grid-cols-1 xl:grid-cols-2">
+            <div className="flex flex-col gap-6">
               <AnimatePresence mode="popLayout">
                 {deals
                   .filter((deal, idx) => {
@@ -396,6 +474,7 @@ export default function App() {
                     deal={deal}
                     index={index}
                     onShare={openShareModal}
+                    onRemind={openSubscribeModal}
                   />
                 ))}
               </AnimatePresence>
@@ -409,30 +488,43 @@ export default function App() {
             </>
             ) : activeTab === "DLC" ? (
               <>
-                <div className="mb-4 text-sm text-[#7C3AED] uppercase font-bold tracking-widest pl-2">
-                  Free Downloadable Content & Expansions
+                <div className="sticky top-24 z-40 w-full mb-8 bg-black/60 backdrop-blur-2xl border border-[#7C3AED]/30 rounded-2xl p-2 md:p-3 shadow-2xl flex flex-col md:flex-row items-center gap-4">
+                  <div className="text-sm text-[#7C3AED] uppercase font-bold tracking-widest pl-2 whitespace-nowrap hidden md:block">
+                    Free DLC
+                  </div>
+                  <div className="relative flex-1 w-full">
+                     <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-[#7C3AED]" />
+                     <input 
+                       type="text"
+                       value={lootSearch}
+                       onChange={e => setLootSearch(e.target.value)}
+                       placeholder="Search free DLC and loot..."
+                       className="w-full bg-white/5 border border-[#7C3AED]/30 rounded-full py-2.5 pl-12 pr-4 text-sm focus:outline-none focus:border-[#7C3AED] transition-colors text-white placeholder:text-white/30"
+                     />
+                   </div>
                 </div>
                 {dlcLoading ? (
                    <div className="flex flex-col items-center justify-center py-20 text-[#7C3AED]">
                       <RefreshCw className="w-8 h-8 animate-spin mb-4" />
                       <p className="text-sm font-bold uppercase tracking-widest text-white/50">Loading Free DLCs...</p>
                    </div>
-                ) : dlcDeals.length > 0 ? (
-                  <div className="grid gap-6 sm:grid-cols-1 xl:grid-cols-2">
+                ) : filteredLootDeals.length > 0 ? (
+                  <div className="flex flex-col gap-6">
                     <AnimatePresence mode="popLayout">
-                      {dlcDeals.map((deal, index) => (
+                      {filteredLootDeals.map((deal, index) => (
                         <DealCard
                           key={deal.id}
                           deal={deal}
                           index={index}
                           onShare={openShareModal}
+                          onRemind={openSubscribeModal}
                         />
                       ))}
                     </AnimatePresence>
                   </div>
                 ) : (
                    <div className="py-20 text-center text-white/50">
-                     No free DLC deals found right now. Check back later!
+                     {lootSearch ? "No free DLC deals found matching your search." : "No free DLC deals found right now. Check back later!"}
                    </div>
                 )}
               </>
@@ -459,7 +551,7 @@ export default function App() {
                       <p className="text-sm font-bold uppercase tracking-widest text-white/50">Loading Premium Deals...</p>
                    </div>
                 ) : filteredPremiumDeals.length > 0 ? (
-                  <div className="grid gap-6 sm:grid-cols-1 xl:grid-cols-2">
+                  <div className="flex flex-col gap-6">
                     <AnimatePresence mode="popLayout">
                       {filteredPremiumDeals.map((deal, index) => (
                         <DealCard
@@ -467,6 +559,7 @@ export default function App() {
                           deal={deal}
                           index={index}
                           onShare={openShareModal}
+                          onRemind={openSubscribeModal}
                         />
                       ))}
                     </AnimatePresence>
@@ -477,52 +570,18 @@ export default function App() {
                    </div>
                 )}
               </>
-            ) : (
-              <>
-                <div className="sticky top-24 z-40 w-full mb-8 bg-black/60 backdrop-blur-2xl border border-[#7C3AED]/30 rounded-2xl p-2 md:p-3 shadow-2xl flex items-center">
-                  <div className="relative flex-1">
-                     <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-[#7C3AED]" />
-                     <input 
-                       type="text"
-                       value={lootSearch}
-                       onChange={e => setLootSearch(e.target.value)}
-                       placeholder="Search games for codes (e.g., Genshin Impact, Honkai, GTA, etc.)..."
-                       className="w-full bg-white/5 border border-[#7C3AED]/30 rounded-full py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-[#7C3AED] transition-colors text-white placeholder:text-white/30"
-                     />
-                   </div>
-                </div>
-
-                {dlcLoading ? (
-                   <div className="flex flex-col items-center justify-center py-20 text-[#7C3AED]">
-                      <RefreshCw className="w-8 h-8 animate-spin mb-4" />
-                      <p className="text-sm font-bold uppercase tracking-widest text-white/50">Searching Offers...</p>
-                   </div>
-                ) : filteredLootDeals.length > 0 ? (
-                  <div className="grid gap-6 sm:grid-cols-1 xl:grid-cols-2">
-                    <AnimatePresence mode="popLayout">
-                      {filteredLootDeals.map((deal, index) => (
-                        <DealCard
-                          key={deal.id}
-                          deal={deal}
-                          index={index}
-                          onShare={openShareModal}
-                        />
-                      ))}
-                    </AnimatePresence>
-                  </div>
-                ) : (
-                   <div className="py-20 text-center text-white/50">
-                     No promotional codes or loot found matching your search.
-                   </div>
-                )}
-              </>
-            )}
+            ) : null}
+            
+            {/* Mobile / Tablet Subscribe Box */}
+            <div className="xl:hidden mt-12 pt-8 border-t border-white/10">
+              <InlineSubscribe />
+            </div>
           </div>
           
           {/* Right Sidebar (Feeds) */}
           <aside className="hidden xl:block w-72 shrink-0 xl:sticky xl:top-24 space-y-6">
             <LiveFeed deals={deals} />
-            <UpcomingDrops deals={deals} />
+            <UpcomingDrops deals={deals} onViewAll={goFreeGames} />
             <GamingNews />
             <div className="pt-4 border-t border-white/10">
               <InlineSubscribe />
@@ -533,9 +592,9 @@ export default function App() {
 
       <footer className="h-[60px] px-4 md:px-10 border-t border-white/10 flex items-center justify-between text-[9px] uppercase tracking-[0.2em] font-bold text-white/30 max-w-7xl mx-auto w-full mt-10">
           <div className="flex gap-6">
-              <a href="#" className="hover:text-white transition-colors">Discord</a>
-              <a href="#" className="hover:text-white transition-colors">Twitter / X</a>
-              <a href="#" className="hover:text-white transition-colors">API Access</a>
+              <button type="button" onClick={openSubscribeModal} className="hover:text-white transition-colors">Discord</button>
+              <button type="button" onClick={() => openExternalUrl("https://x.com/search?q=free%20game%20deals")} className="hover:text-white transition-colors">Twitter / X</button>
+              <button type="button" onClick={() => openExternalUrl("/api/deals")} className="hover:text-white transition-colors">API Access</button>
           </div>
           <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] animate-pulse"></span>

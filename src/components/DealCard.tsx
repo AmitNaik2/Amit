@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { Tag, Monitor, MonitorSmartphone, Smartphone, Gamepad2, Mail, BadgeCheck, ShieldCheck, Star } from "lucide-react";
 import { type Key, useRef, type MouseEvent } from "react";
 import { type GameDeal } from "../types";
-import { cn } from "../lib/utils";
+import { cn, openExternalUrl } from "../lib/utils";
 import { getDealRarity } from "../lib/deal-utils";
 
 import { Countdown } from "./Countdown";
@@ -13,9 +13,10 @@ interface DealCardProps {
   deal: GameDeal;
   index: number;
   onShare: (title: string, url: string) => void;
+  onRemind?: (deal: GameDeal) => void;
 }
 
-export function DealCard({ deal, index, onShare }: DealCardProps) {
+export function DealCard({ deal, index, onShare, onRemind }: DealCardProps) {
   const originalPrice = deal.worth === "N/A" ? "$0.00" : deal.worth;
   const cardRef = useRef<HTMLDivElement>(null);
   
@@ -31,6 +32,11 @@ export function DealCard({ deal, index, onShare }: DealCardProps) {
     
     cardRef.current.style.setProperty("--mouse-x", `${x}px`);
     cardRef.current.style.setProperty("--mouse-y", `${y}px`);
+  };
+
+  const openDeal = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    openExternalUrl(deal.open_giveaway_url, "_self");
   };
 
   const renderPlatformIcon = (platformStr: string) => {
@@ -84,7 +90,7 @@ export function DealCard({ deal, index, onShare }: DealCardProps) {
       
       {/* Image Section */}
       <div className="relative w-full sm:w-64 lg:w-72 aspect-video sm:aspect-auto shrink-0 overflow-hidden bg-black/50 border-b sm:border-b-0 sm:border-r border-white/10">
-        <a href={deal.open_giveaway_url} target="_blank" rel="noreferrer" className="block w-full h-full">
+        <a href={deal.open_giveaway_url} onClick={openDeal} target="_self" rel="noreferrer" className="block w-full h-full">
           <img
             src={bgImage}
             alt={deal.title}
@@ -105,7 +111,7 @@ export function DealCard({ deal, index, onShare }: DealCardProps) {
             <ShieldCheck className="w-2.5 h-2.5" />
             {trustScore}
           </span>
-          <span>•</span>
+          <span aria-hidden="true">/</span>
           {platforms.map((platform, i) => (
             <span key={i} className="flex items-center gap-1 text-[#7C3AED]">
               {renderPlatformIcon(platform)}
@@ -115,7 +121,7 @@ export function DealCard({ deal, index, onShare }: DealCardProps) {
           ))}
         </div>
 
-        <a href={deal.open_giveaway_url} target="_blank" rel="noreferrer" className="inline-block group-hover:text-[#7C3AED] transition-colors mb-2">
+        <a href={deal.open_giveaway_url} onClick={openDeal} target="_self" rel="noreferrer" className="inline-block group-hover:text-[#7C3AED] transition-colors mb-2">
           <h3 className="text-lg sm:text-xl font-bold leading-tight text-white line-clamp-1 font-serif italic">
             {deal.title}
           </h3>
@@ -143,7 +149,7 @@ export function DealCard({ deal, index, onShare }: DealCardProps) {
              {deal.users > 0 ? `${deal.users.toLocaleString()} CLAIMS` : "NEW"}
            </span>
            <span className="flex items-center gap-1.5 text-[10px] font-mono text-cyan-400 uppercase tracking-tighter animate-pulse">
-             • {liveViewers} VIEWING NOW
+             / {liveViewers} VIEWING NOW
            </span>
         </div>
 
@@ -168,23 +174,23 @@ export function DealCard({ deal, index, onShare }: DealCardProps) {
         <div className="flex flex-wrap items-center justify-end sm:justify-center gap-2 mt-4 sm:mt-0 w-full sm:w-auto">
           <button
             onClick={() => onShare(deal.title, deal.open_giveaway_url)}
+            aria-label={`Email ${deal.title}`}
             className="w-8 h-8 rounded border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors group/btn"
             title="Email Deal"
           >
             <Mail className="w-3.5 h-3.5 transition-transform group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5" />
           </button>
           <button 
+             type="button"
              className="h-8 px-3 flex items-center justify-center border border-amber-400/30 text-amber-400 text-[10px] font-bold uppercase tracking-widest rounded hover:bg-amber-400/10 transition-colors"
-             onClick={(e) => {
-               (e.target as HTMLButtonElement).innerText = 'REMINDER SET';
-               setTimeout(() => (e.target as HTMLButtonElement).innerText = 'REMIND ME', 2000);
-             }}
+             onClick={() => onRemind?.(deal)}
           >
             Remind Me
           </button>
           <a 
             href={deal.open_giveaway_url}
-            target="_blank"
+            onClick={openDeal}
+            target="_self"
             rel="noreferrer"
             className="h-8 px-4 flex items-center justify-center bg-gradient-to-r from-[#7C3AED] to-cyan-500 text-white text-[10px] font-bold uppercase tracking-widest rounded hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(124,58,237,0.4)]"
            >
