@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Gamepad2, RefreshCw, AlertCircle, RefreshCcw, CheckCircle2, Search, Filter } from "lucide-react";
+import { Analytics } from "@vercel/analytics/react";
 import { DealCard } from "./components/DealCard";
 import { EmailModal } from "./components/EmailModal";
 import { type GameDeal } from "./types";
@@ -609,6 +610,9 @@ export default function App() {
         dealTitle={shareData?.title}
         dealUrl={shareData?.url}
       />
+      
+      {/* Vercel Web Analytics */}
+      <Analytics />
     </div>
   );
 }
