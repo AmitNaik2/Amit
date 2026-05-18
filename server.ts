@@ -99,7 +99,7 @@ app.use(express.json());
       res.json(data);
     } catch (error) {
       console.error("Error fetching deals:", error);
-      res.json([]);
+      res.status(500).json({ error: "Failed to fetch deals" });
     }
   });
 
@@ -143,7 +143,7 @@ app.use(express.json());
       res.json(data);
     } catch (error) {
       console.error("Error fetching loot:", error);
-      res.json([]);
+      res.status(500).json({ error: "Failed to fetch loot" });
     }
   });
 
@@ -168,7 +168,7 @@ app.use(express.json());
       res.json(data);
     } catch (error) {
       console.error("Error fetching cheapshark deals:", error);
-      res.json([]);
+      res.status(500).json({ error: "Failed to fetch cheapshark deals" });
     }
   });
 
