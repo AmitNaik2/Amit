@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Gamepad2, RefreshCw, AlertCircle, RefreshCcw, CheckCircle2, Search, Filter } from "lucide-react";
 import { Routes, Route, useLocation, useNavigate, Link, Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { Analytics } from "@vercel/analytics/react";
 import { DealCard } from "./components/DealCard";
 import { GameDetail } from "./components/GameDetail";
 import { PrivacyPolicy } from "./components/PrivacyPolicy";
@@ -693,6 +694,7 @@ export default function App() {
         dealTitle={shareData?.title}
         dealUrl={shareData?.url}
       />
+      <Analytics />
     </div>
   );
 }
