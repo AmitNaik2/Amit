@@ -1,5 +1,7 @@
-import { Gamepad2, Search, Bell, User, MessageSquare } from "lucide-react";
+import { Gamepad2, Search, Bell, User, MessageSquare, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 
 interface TopNavbarProps {
   searchValue: string;
@@ -20,12 +22,42 @@ export function TopNavbar({
   onTrendingClick,
   onSubscribeClick,
 }: TopNavbarProps) {
+  const [onlineUsers, setOnlineUsers] = useState<number>(0);
+
+  useEffect(() => {
+    const socket = io("/");
+    
+    // detect platform
+    const ua = window.navigator.userAgent.toLowerCase();
+    let platform = "other";
+    if (/mobi|android|iphone|ipad/.test(ua)) platform = "mobile";
+    else if (/windows/.test(ua)) platform = "windows";
+    else if (/mac os/.test(ua)) platform = "mac";
+    else if (/linux/.test(ua)) platform = "linux";
+    
+    socket.emit("registerPlatform", platform);
+    
+    socket.on("activeUsers", (count: number) => {
+      setOnlineUsers(count);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   return (
     <nav className="sticky top-0 z-50 bg-[#0A0A0B]/80 backdrop-blur-2xl border-b border-white/10">
       <div className="container px-4 mx-auto max-w-7xl">
         <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
           {/* Logo */}
           <Link to="/" onClick={onHomeClick} className="flex items-center gap-3">
+            {onlineUsers > 0 && (
+              <div className="hidden xl:flex items-center gap-2 mr-4 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-mono tracking-widest uppercase">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse glow-green"></span>
+                <span className="text-white/70">{onlineUsers} Online</span>
+              </div>
+            )}
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7C3AED] to-cyan-500 flex items-center justify-center shadow-[0_0_20px_rgba(124,58,237,0.3)]">
               <Gamepad2 className="w-5 h-5 text-white" />
             </div>
@@ -62,6 +94,9 @@ export function TopNavbar({
               <Bell className="w-4 h-4" />
               <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-black animate-pulse"></span>
             </button>
+            <Link to="/admin" aria-label="Admin Dashboard" title="Admin Dashboard" className="hidden sm:flex w-9 h-9 rounded-full border border-white/10 items-center justify-center hover:bg-[#7C3AED] hover:text-white hover:border-[#7C3AED] transition-all text-white/70">
+              <Shield className="w-4 h-4" />
+            </Link>
 
             <div className="flex items-center gap-2 pl-3 ml-1 border-l border-white/10 shrink-0">
                <button type="button" onClick={onSubscribeClick} aria-label="Open alert preferences" title="Open alert preferences" className="w-9 h-9 rounded-full bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all text-white/70">

@@ -1,0 +1,161 @@
+import { useState, useEffect } from "react";
+import { Lock, LogOut, Monitor, Smartphone } from "lucide-react";
+import { Navigate } from "react-router-dom";
+import { io } from "socket.io-client";
+import { type GameDeal } from "../types";
+
+interface AdminProps {
+  deals: GameDeal[];
+}
+
+export function Admin({ deals }: AdminProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("isAdminLoggedIn") === "true"
+  );
+  const [error, setError] = useState("");
+  
+  const [activeUsers, setActiveUsers] = useState(0);
+  const [platformStats, setPlatformStats] = useState<Record<string, number>>({ windows: 0, mac: 0, linux: 0, mobile: 0, other: 0 });
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const socket = io("/");
+      socket.on("adminStats", (stats: { activeUsers: number, platformStats: Record<string, number> }) => {
+        setActiveUsers(stats.activeUsers);
+        setPlatformStats(stats.platformStats);
+      });
+      return () => { socket.disconnect(); };
+    }
+  }, [isLoggedIn]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email === "amitnaik0023@gmail.com" && password === "Amit_Naik12") {
+      setIsLoggedIn(true);
+      localStorage.setItem("isAdminLoggedIn", "true");
+      setError("");
+    } else {
+      setError("Invalid email or password");
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem("isAdminLoggedIn");
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="bg-[#101014] border border-white/10 p-8 rounded-2xl w-full max-w-md">
+          <div className="flex justify-center mb-6">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7C3AED] to-cyan-500 flex items-center justify-center shadow-[0_0_20px_rgba(124,58,237,0.3)]">
+              <Lock className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-center text-white mb-6">Admin Login</h2>
+          
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-white/70 mb-1">Email</label>
+              <input
+                type="text"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-[#7C3AED] transition-colors"
+                placeholder="Admin Email"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white/70 mb-1">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-[#7C3AED] transition-colors"
+                placeholder="Admin Password"
+              />
+            </div>
+            
+            {error && (
+              <div className="text-red-500 text-sm">{error}</div>
+            )}
+            
+            <button
+              type="submit"
+              className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold py-3 px-4 rounded-lg transition-colors mt-4"
+            >
+              Login
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center bg-[#101014] border border-white/10 p-6 rounded-2xl">
+        <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors text-sm font-bold"
+        >
+          <LogOut className="w-4 h-4" />
+          Logout
+        </button>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-[#101014] border border-white/10 p-6 rounded-2xl">
+          <h3 className="text-white/70 text-sm font-bold uppercase tracking-widest mb-2">Total Deals</h3>
+          <p className="text-3xl font-bold text-white">{deals.length}</p>
+        </div>
+        <div className="bg-[#101014] border border-white/10 p-6 rounded-2xl">
+          <h3 className="text-white/70 text-sm font-bold uppercase tracking-widest mb-2">Active Users</h3>
+          <p className="text-3xl font-bold text-white">{activeUsers}</p>
+        </div>
+        <div className="bg-[#101014] border border-white/10 p-6 rounded-2xl">
+          <h3 className="text-white/70 text-sm font-bold uppercase tracking-widest mb-2">API Status</h3>
+          <div className="flex items-center gap-2 text-green-500 text-lg font-bold mb-4">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse glow-green"></span>
+            Operational
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-[#101014] border border-white/10 p-6 rounded-2xl">
+        <h2 className="text-xl font-bold text-white mb-4">User Device Platforms</h2>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="bg-black border border-white/5 p-4 rounded-xl flex items-center justify-between">
+            <div className="flex items-center gap-2"><Monitor className="w-4 h-4 text-white/50" /><span className="text-sm text-white/70">Win</span></div>
+            <span className="font-bold text-white">{platformStats.windows || 0}</span>
+          </div>
+          <div className="bg-black border border-white/5 p-4 rounded-xl flex items-center justify-between">
+            <div className="flex items-center gap-2"><Monitor className="w-4 h-4 text-white/50" /><span className="text-sm text-white/70">Mac</span></div>
+            <span className="font-bold text-white">{platformStats.mac || 0}</span>
+          </div>
+          <div className="bg-black border border-white/5 p-4 rounded-xl flex items-center justify-between">
+            <div className="flex items-center gap-2"><Monitor className="w-4 h-4 text-white/50" /><span className="text-sm text-white/70">Linux</span></div>
+            <span className="font-bold text-white">{platformStats.linux || 0}</span>
+          </div>
+          <div className="bg-black border border-white/5 p-4 rounded-xl flex items-center justify-between">
+            <div className="flex items-center gap-2"><Smartphone className="w-4 h-4 text-white/50" /><span className="text-sm text-white/70">Mobile</span></div>
+            <span className="font-bold text-white">{platformStats.mobile || 0}</span>
+          </div>
+          <div className="bg-black border border-white/5 p-4 rounded-xl flex items-center justify-between">
+            <span className="text-sm text-white/70">Other</span>
+            <span className="font-bold text-white">{platformStats.other || 0}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="bg-[#101014] border border-white/10 p-6 rounded-2xl min-h-[300px]">
+        <h2 className="text-xl font-bold text-white mb-4">Manage Deals</h2>
+        <p className="text-white/60">Administrator controls for managing deals will appear here.</p>
+      </div>
+    </div>
+  );
+}

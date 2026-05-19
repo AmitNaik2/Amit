@@ -10,6 +10,7 @@ import { TermsOfService } from "./components/TermsOfService";
 import { AboutUs } from "./components/AboutUs";
 import { ContactUs } from "./components/ContactUs";
 import { ArticleComparison } from "./components/ArticleComparison";
+import { Admin } from "./components/Admin";
 import { EmailModal } from "./components/EmailModal";
 import { type GameDeal } from "./types";
 import { getDealRarity, type RarityLevel } from "./lib/deal-utils";
@@ -651,6 +652,7 @@ export default function App() {
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/article/hp-omen-16-vs-lenovo-loq" element={<ArticleComparison />} />
+          <Route path="/admin" element={<Admin deals={[...deals, ...dlcDeals, ...premiumDeals]} />} />
         </Routes>
       </main>
 

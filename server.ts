@@ -6,6 +6,7 @@ import path from "path";
 import nodemailer from "nodemailer";
 import * as dotenv from "dotenv";
 import * as cheerio from "cheerio";
+import { Server as SocketIOServer } from "socket.io";
 
 dotenv.config();
 dotenv.config({ path: ".env.local", override: true });
@@ -641,10 +642,46 @@ app.use(express.json());
   }
 
   if (!process.env.VERCEL) {
-    app.listen(PORT, "0.0.0.0", () => {
+    const server = app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on http://0.0.0.0:${PORT}`);
       refreshNewsCache().catch(() => {
         // Startup crawl errors are logged by refreshNewsCache and retried on schedule.
+      });
+    });
+
+    const io = new SocketIOServer(server, {
+      cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+      }
+    });
+
+    let activeUsers = 0;
+    const platformStats: Record<string, number> = { windows: 0, mac: 0, linux: 0, mobile: 0, other: 0 };
+
+    io.on("connection", (socket) => {
+      activeUsers++;
+      let userPlatform = 'other';
+      io.emit("activeUsers", activeUsers);
+      io.emit("adminStats", { activeUsers, platformStats });
+
+      socket.on("registerPlatform", (platform: string) => {
+        userPlatform = platform;
+        if (platformStats[platform] !== undefined) {
+          platformStats[platform]++;
+        } else {
+          platformStats[platform] = 1;
+        }
+        io.emit("adminStats", { activeUsers, platformStats });
+      });
+
+      socket.on("disconnect", () => {
+        activeUsers--;
+        if (platformStats[userPlatform] > 0) {
+          platformStats[userPlatform]--;
+        }
+        io.emit("activeUsers", activeUsers);
+        io.emit("adminStats", { activeUsers, platformStats });
       });
     });
   }

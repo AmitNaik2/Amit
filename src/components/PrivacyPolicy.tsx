@@ -40,8 +40,9 @@ export function PrivacyPolicy() {
           <h3 className="text-lg font-bold mt-4 mb-2 text-white">b) Non-Personal Information</h3>
           <p className="text-white/80 leading-relaxed mb-2">Automatically collected information including:</p>
           <ul className="list-disc pl-6 text-white/80 space-y-1">
-            <li>Browser type</li>
-            <li>Device information</li>
+            <li>Browser type and version</li>
+            <li>Operating system and device platform (e.g., Windows, Mac, Mobile)</li>
+            <li>Real-time active connection status</li>
             <li>IP address</li>
             <li>Pages visited</li>
             <li>Time spent on the website</li>
