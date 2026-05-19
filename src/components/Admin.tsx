@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Lock, LogOut, Monitor, Smartphone } from "lucide-react";
 import { Navigate } from "react-router-dom";
-import { io } from "socket.io-client";
 import { type GameDeal } from "../types";
 
 interface AdminProps {
@@ -11,9 +10,7 @@ interface AdminProps {
 export function Admin({ deals }: AdminProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("isAdminLoggedIn") === "true"
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [error, setError] = useState("");
   
   const [activeUsers, setActiveUsers] = useState(0);
@@ -21,29 +18,46 @@ export function Admin({ deals }: AdminProps) {
 
   useEffect(() => {
     if (isLoggedIn) {
-      const socket = io("/");
-      socket.on("adminStats", (stats: { activeUsers: number, platformStats: Record<string, number> }) => {
-        setActiveUsers(stats.activeUsers);
-        setPlatformStats(stats.platformStats);
-      });
-      return () => { socket.disconnect(); };
+      const fetchAdminStats = async () => {
+        try {
+          const res = await fetch("/api/admin/stats");
+          if (res.ok) {
+            const data = await res.json();
+            setActiveUsers(data.activeUsers);
+            setPlatformStats(data.platformStats);
+          }
+        } catch (err) {
+          console.error("Failed to fetch admin stats", err);
+        }
+      };
+      
+      fetchAdminStats();
+      const interval = setInterval(fetchAdminStats, 10000);
+      return () => clearInterval(interval);
     }
   }, [isLoggedIn]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === "amitnaik0023@gmail.com" && password === "Amit_Naik12") {
-      setIsLoggedIn(true);
-      localStorage.setItem("isAdminLoggedIn", "true");
-      setError("");
-    } else {
-      setError("Invalid email or password");
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      if (res.ok) {
+        setIsLoggedIn(true);
+        setError("");
+      } else {
+        setError("Invalid email or password");
+      }
+    } catch (err) {
+      setError("Login failed");
     }
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    localStorage.removeItem("isAdminLoggedIn");
   };
 
   if (!isLoggedIn) {

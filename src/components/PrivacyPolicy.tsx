@@ -41,8 +41,8 @@ export function PrivacyPolicy() {
           <p className="text-white/80 leading-relaxed mb-2">Automatically collected information including:</p>
           <ul className="list-disc pl-6 text-white/80 space-y-1">
             <li>Browser type and version</li>
-            <li>Operating system and device platform (e.g., Windows, Mac, Mobile)</li>
-            <li>Real-time active connection status</li>
+            <li>Operating system and device platform (e.g., Windows, Mac, Mobile) used for real-time analytics in the admin panel</li>
+            <li>Real-time active connection status collected via our activity tracking API</li>
             <li>IP address</li>
             <li>Pages visited</li>
             <li>Time spent on the website</li>

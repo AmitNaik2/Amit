@@ -1,7 +1,6 @@
 import { Gamepad2, Search, Bell, User, MessageSquare, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
 
 interface TopNavbarProps {
   searchValue: string;
@@ -25,25 +24,24 @@ export function TopNavbar({
   const [onlineUsers, setOnlineUsers] = useState<number>(0);
 
   useEffect(() => {
-    const socket = io("/");
-    
-    // detect platform
-    const ua = window.navigator.userAgent.toLowerCase();
-    let platform = "other";
-    if (/mobi|android|iphone|ipad/.test(ua)) platform = "mobile";
-    else if (/windows/.test(ua)) platform = "windows";
-    else if (/mac os/.test(ua)) platform = "mac";
-    else if (/linux/.test(ua)) platform = "linux";
-    
-    socket.emit("registerPlatform", platform);
-    
-    socket.on("activeUsers", (count: number) => {
-      setOnlineUsers(count);
-    });
-
-    return () => {
-      socket.disconnect();
+    // Ping to track activity and get online user count
+    const pingActivity = async () => {
+      try {
+        const res = await fetch('/api/track-activity', { method: 'POST' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.activeUsers !== undefined) {
+             setOnlineUsers(data.activeUsers);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to ping activity", err);
+      }
     };
+    
+    pingActivity();
+    const interval = setInterval(pingActivity, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   return (

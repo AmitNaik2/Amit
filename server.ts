@@ -641,48 +641,91 @@ app.use(express.json());
     });
   }
 
+  let activeSockets = 0;
+  // Fallback for Vercel Serverless (using HTTP endpoint instead of Websockets)
+  const activeSessions = new Map<string, { lastSeen: number, platform: string, country: string }>();
+
+  // Helper to get platform from Vercel header or user-agent
+  const getPlatform = (req: express.Request) => {
+    const vercelOs = req.headers['x-vercel-os'] as string;
+    if (vercelOs) {
+      if (vercelOs.toLowerCase().includes('win')) return 'windows';
+      if (vercelOs.toLowerCase().includes('mac')) return 'mac';
+      if (vercelOs.toLowerCase().includes('linux')) return 'linux';
+      if (vercelOs.toLowerCase().includes('ios') || vercelOs.toLowerCase().includes('android')) return 'mobile';
+    }
+    
+    // Fallback parsing
+    const userAgent = (req.headers['user-agent'] || '').toLowerCase();
+    if (/mobi|android|iphone|ipad/.test(userAgent)) return 'mobile';
+    if (/windows/.test(userAgent)) return 'windows';
+    if (/mac os/.test(userAgent)) return 'mac';
+    if (/linux/.test(userAgent)) return 'linux';
+    return 'other';
+  };
+
+  app.post("/api/track-activity", (req, res) => {
+    // Generate a simple session ID based on IP or fall back to connection remoteAddress
+    const sessionId = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || 'unknown';
+    const platform = getPlatform(req);
+    const country = (req.headers['x-vercel-ip-country'] as string) || 'Unknown';
+    
+    activeSessions.set(sessionId, {
+      lastSeen: Date.now(),
+      platform,
+      country
+    });
+
+    // Clean up stale sessions (older than 2 minutes)
+    const now = Date.now();
+    for (const [key, value] of activeSessions.entries()) {
+      if (now - value.lastSeen > 2 * 60 * 1000) {
+        activeSessions.delete(key);
+      }
+    }
+
+    res.json({ success: true, activeUsers: activeSessions.size });
+  });
+
+  app.post("/api/admin/login", express.json(), (req, res) => {
+    const { email, password } = req.body || {};
+    const validEmail = process.env.ADMIN_EMAIL || "amitnaik0023@gmail.com";
+    const validPassword = process.env.ADMIN_PASSWORD || "Amit_Naik12";
+    
+    if (email === validEmail && password === validPassword) {
+      res.json({ success: true });
+    } else {
+      res.status(401).json({ error: "Invalid credentials" });
+    }
+  });
+
+  app.get("/api/admin/stats", (req, res) => {
+    // Attempt to fetch from Vercel REST API if token exists
+    const hasVercelApi = !!process.env.VERCEL_TOKEN;
+
+    // Local computed stats from activeSessions
+    const platformStats = { windows: 0, mac: 0, linux: 0, mobile: 0, other: 0 };
+    for (const session of activeSessions.values()) {
+        const plat = session.platform;
+        if (platformStats[plat as keyof typeof platformStats] !== undefined) {
+           platformStats[plat as keyof typeof platformStats]++;
+        } else {
+           platformStats.other++;
+        }
+    }
+
+    res.json({
+      activeUsers: activeSessions.size,
+      platformStats,
+      hasVercelApi,
+      source: "Vercel Headers & Active Pings"
+    });
+  });
+
   if (!process.env.VERCEL) {
     const server = app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on http://0.0.0.0:${PORT}`);
-      refreshNewsCache().catch(() => {
-        // Startup crawl errors are logged by refreshNewsCache and retried on schedule.
-      });
-    });
-
-    const io = new SocketIOServer(server, {
-      cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-      }
-    });
-
-    let activeUsers = 0;
-    const platformStats: Record<string, number> = { windows: 0, mac: 0, linux: 0, mobile: 0, other: 0 };
-
-    io.on("connection", (socket) => {
-      activeUsers++;
-      let userPlatform = 'other';
-      io.emit("activeUsers", activeUsers);
-      io.emit("adminStats", { activeUsers, platformStats });
-
-      socket.on("registerPlatform", (platform: string) => {
-        userPlatform = platform;
-        if (platformStats[platform] !== undefined) {
-          platformStats[platform]++;
-        } else {
-          platformStats[platform] = 1;
-        }
-        io.emit("adminStats", { activeUsers, platformStats });
-      });
-
-      socket.on("disconnect", () => {
-        activeUsers--;
-        if (platformStats[userPlatform] > 0) {
-          platformStats[userPlatform]--;
-        }
-        io.emit("activeUsers", activeUsers);
-        io.emit("adminStats", { activeUsers, platformStats });
-      });
+      refreshNewsCache().catch(() => {});
     });
   }
   
