@@ -40,7 +40,7 @@ export function TopNavbar({
     };
     
     pingActivity();
-    const interval = setInterval(pingActivity, 30000);
+    const interval = setInterval(pingActivity, 5000);
     return () => clearInterval(interval);
   }, []);
 

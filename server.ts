@@ -650,10 +650,10 @@ app.use(express.json());
       country
     });
 
-    // Clean up stale sessions (older than 2 minutes)
+    // Clean up stale sessions (older than 15 seconds)
     const now = Date.now();
     for (const [key, value] of activeSessions.entries()) {
-      if (now - value.lastSeen > 2 * 60 * 1000) {
+      if (now - value.lastSeen > 15 * 1000) {
         activeSessions.delete(key);
       }
     }

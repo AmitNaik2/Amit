@@ -32,7 +32,7 @@ export function Admin({ deals }: AdminProps) {
       };
       
       fetchAdminStats();
-      const interval = setInterval(fetchAdminStats, 10000);
+      const interval = setInterval(fetchAdminStats, 3000);
       return () => clearInterval(interval);
     }
   }, [isLoggedIn]);
