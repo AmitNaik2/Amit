@@ -26,10 +26,6 @@ export function TopNavbar({
         <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
           {/* Logo */}
           <Link to="/" onClick={onHomeClick} className="flex items-center gap-3">
-            <div className="hidden xl:flex items-center gap-2 mr-4 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-mono tracking-widest uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse glow-green"></span>
-              <span className="text-white/70">8,492 Online</span>
-            </div>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7C3AED] to-cyan-500 flex items-center justify-center shadow-[0_0_20px_rgba(124,58,237,0.3)]">
               <Gamepad2 className="w-5 h-5 text-white" />
             </div>

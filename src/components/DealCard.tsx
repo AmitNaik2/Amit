@@ -62,14 +62,8 @@ export function DealCard({ deal, index, onShare, onRemind, priority = false }: D
     trustBorder = "border-blue-400/20";
   }
 
-  // Simulated Deal Score based on worth and users
-  const priceValue = parseFloat((deal.worth || "0").replace(/[^0-9.]/g, '')) || 0;
-  const rawScore = 6.0 + Math.min(priceValue / 10, 2.0) + Math.min((deal.users || 0) / 10000, 2.0);
-  const dealScore = Math.min(rawScore, 9.9).toFixed(1);
-
-  // Simulated Live Viewers (stable pseudo-random based on id/title length so it doesn't change on re-render)
-  const liveViewers = 12 + Math.floor((deal.users || 0) / 1000) + (deal.title.length % 50);
-
+  // Remove simulated Deal Score based on worth and users
+  
   return (
     <motion.div
       ref={cardRef}
@@ -153,9 +147,6 @@ export function DealCard({ deal, index, onShare, onRemind, priority = false }: D
         )}
 
         <div className="flex flex-wrap items-center gap-3 mb-6">
-           <span className="px-2 py-0.5 rounded bg-[#7C3AED] text-white text-[10px] font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(124,58,237,0.4)]">
-              AI SCORE: {dealScore}
-           </span>
            {deal.steamRatingPercent && (
             <span className="px-2 py-0.5 rounded border border-blue-400/30 text-blue-400 text-[10px] font-bold uppercase tracking-widest">
               STEAM {deal.steamRatingPercent}%
@@ -168,13 +159,6 @@ export function DealCard({ deal, index, onShare, onRemind, priority = false }: D
            )}
            <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-white/60 text-[10px] font-bold uppercase tracking-widest">
               {deal.type || "Special Deal"}
-           </span>
-           <span className="flex items-center gap-1.5 text-[10px] font-mono whitespace-nowrap text-white/50 uppercase tracking-tighter">
-             <Tag className="w-3 h-3 opacity-50" />
-             {deal.users > 0 ? `${deal.users.toLocaleString()} CLAIMS` : "NEW"}
-           </span>
-           <span className="flex items-center gap-1.5 text-[10px] font-mono whitespace-nowrap text-cyan-400 uppercase tracking-tighter animate-pulse">
-             / {liveViewers} VIEWING NOW
            </span>
         </div>
 

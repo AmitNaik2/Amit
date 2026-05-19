@@ -11,12 +11,8 @@ export function FeaturedDeal({ deal }: { deal: GameDeal }) {
   const gameInfo = useIgdb(deal?.title);
   if (!deal) return null;
 
-  // Simulated scores
-  const priceValue = parseFloat((deal.worth || "0").replace(/[^0-9.]/g, '')) || 0;
-  const rawScore = 6.5 + Math.min(priceValue / 10, 2.0) + Math.min((deal.users || 0) / 10000, 2.0);
-  const dealScore = Math.min(rawScore, 9.9).toFixed(1);
-  const liveViewers = 40 + Math.floor((deal.users || 0) / 500) + (deal.title.length % 100);
-
+  // Removed simulated scores
+  
   const bgImage = gameInfo?.background_image || deal.image || deal.thumbnail;
   const rewrittenSummary = generateUniqueSummary(deal.title, deal.description, deal.type, deal.platforms);
   const tags = generateTags(deal.title, deal.platforms, deal.type, deal.description);
@@ -50,13 +46,6 @@ export function FeaturedDeal({ deal }: { deal: GameDeal }) {
                {tag}
              </span>
           ))}
-          <span className="bg-[#7C3AED] text-white px-2 py-0.5 rounded shadow-[0_0_15px_rgba(124,58,237,0.5)]">
-             AI SCORE: {dealScore}
-          </span>
-          <span aria-hidden="true">/</span>
-          <span className="text-cyan-400 animate-pulse hidden sm:inline-block">
-             / {liveViewers} VIEWING
-          </span>
         </div>
         <Link to={gameUrl} className="block w-fit">
           <h2 className="text-3xl sm:text-5xl font-serif italic mb-3 text-white leading-tight hover:text-[#7C3AED] transition-colors">

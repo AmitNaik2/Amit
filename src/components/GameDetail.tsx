@@ -164,10 +164,6 @@ export function GameDetail({ deals }: { deals: GameDeal[] }) {
                  <span className="text-[11px] uppercase tracking-widest text-white/40 font-bold">Platforms</span>
                  <span className="text-sm text-white/80">{deal.platforms}</span>
                </li>
-                <li className="flex justify-between items-center bg-black/40 p-4 rounded-xl border border-white/5">
-                 <span className="text-[11px] uppercase tracking-widest text-white/40 font-bold">Community Uses</span>
-                 <span className="text-sm text-white/80">{deal.users?.toLocaleString() || 0} Claimed</span>
-               </li>
              </ul>
           </div>
       </div>

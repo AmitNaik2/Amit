@@ -172,8 +172,10 @@ export default function App() {
 
   const seoDescription = useMemo(() => {
     const monthYear = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(new Date());
-    return `Get access to 1,492+ active game deals updated every hour. Track and claim free PC games before they expire. Steam, Epic Games, and GOG giveaways for ${monthYear}.`;
-  }, []);
+    const totalDeals = deals.length + dlcDeals.length + premiumDeals.length;
+    const dealCountText = totalDeals > 0 ? totalDeals : "100+";
+    return `Get access to ${dealCountText} active game deals updated every hour. Track and claim free PC games before they expire. Steam, Epic Games, and GOG giveaways for ${monthYear}.`;
+  }, [deals.length, dlcDeals.length, premiumDeals.length]);
   
   const filteredLootDeals = dlcDeals.filter(deal => 
     deal.title.toLowerCase().includes(lootSearch.toLowerCase()) || 
@@ -682,7 +684,7 @@ export default function App() {
                   <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse glow-green"></span>
                   <span className="text-green-500">API Status: Normal</span>
                </div>
-               <div className="py-1">Active Deals: <span className="text-white">1,492</span></div>
+               <div className="py-1">Active Deals: <span className="text-white">{deals.length + dlcDeals.length + premiumDeals.length}</span></div>
                <div className="mt-8 pt-4 border-t border-white/10 opacity-40">© 2026 GamesDealsHub</div>
             </div>
           </div>
