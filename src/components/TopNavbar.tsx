@@ -54,7 +54,7 @@ export function TopNavbar({
           }
         }
       } catch (err) {
-        console.error("Failed to ping activity", err);
+        // Silently fail on network/adblocker errors
       }
     };
     

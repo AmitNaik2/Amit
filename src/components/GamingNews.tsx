@@ -30,7 +30,7 @@ export function GamingNews() {
           if (isMounted) setLoading(false);
         })
         .catch(err => {
-          console.error("Failed to fetch news:", err);
+          // ignore or silently handle fetch failure
           if (isMounted) setLoading(false);
         });
     };

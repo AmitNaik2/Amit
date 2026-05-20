@@ -35,7 +35,7 @@ export function Admin({ deals }: AdminProps) {
             }
           }
         } catch (err) {
-          console.error("Failed to fetch admin stats", err);
+          // Silent catch for network errors
         }
       };
       

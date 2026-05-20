@@ -1,6 +1,42 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Suppress generic cross-origin Script errors caused by iframe preview restrictions -->
+    <script>
+      window.addEventListener('error', function(e) {
+        if (e.message === 'Script error.' || e.message === 'Script error') {
+          e.stopImmediatePropagation();
+        }
+      }, true);
+      window.onerror = function(message) {
+        if (typeof message === 'string' && message.indexOf('Script error') > -1) {
+          return true;
+        }
+      };
+    </script>
+    <!-- Google Funding Choices -->
+    <script async src="https://fundingchoicesmessages.google.com/i/pub-7564716797174887?ers=1"></script>
+    <script>
+      (function() {
+        function signalGooglefcPresent() {
+          try {
+            if (!window.frames['googlefcPresent']) {
+              if (document.body) {
+                const iframe = document.createElement('iframe');
+                iframe.style = 'width: 0; height: 0; border: none; z-index: -1000; left: -1000px; top: -1000px;';
+                iframe.style.display = 'none';
+                iframe.name = 'googlefcPresent';
+                document.body.appendChild(iframe);
+              } else {
+                setTimeout(signalGooglefcPresent, 0);
+              }
+            }
+          } catch(e) {}
+        }
+        signalGooglefcPresent();
+      })();
+    </script>
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7JE07H6RHS"></script>
     <script>
