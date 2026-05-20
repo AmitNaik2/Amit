@@ -894,7 +894,7 @@ app.use(express.json());
 
       const pathName = req.path;
       let title = "GamesDealsHub | Track Free PC Games & Gaming Deals";
-      let desc = "Track and claim free PC games before they expire. Find Steam free weekends, Epic Games giveaways, Indie giveaways, GOG freebies, and limited-time premium AAA game promotions.";
+      let desc = "Track and claim free PC games before they expire. Find Steam free weekends, Epic Games giveaways, GOG freebies, and limited-time premium AAA game promotions.";
 
       if (pathName === "/about") {
         title = "About Us | GamesDealsHub";
