@@ -67,9 +67,11 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
               "url": `https://gamesdealshub.me/game/${deal.id}`,
               "priceCurrency": "USD",
               "price": deal.salePrice || "0.00",
+              "availability": "https://schema.org/InStock",
+              "itemCondition": "https://schema.org/NewCondition",
               "seller": {
                 "@type": "Organization",
-                "name": deal.platforms.split(',')[0]
+                "name": deal.platforms ? deal.platforms.split(',')[0] : "Steam"
               }
             }
           })}

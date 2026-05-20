@@ -453,12 +453,17 @@ export default function App() {
               "@type": "ListItem",
               "position": index + 1,
               "item": {
-                "@type": "Offer",
+                "@type": "Product",
                 "name": deal.title,
                 "url": `https://www.gamesdealshub.me/game/${deal.id}`,
-                "priceCurrency": "USD",
-                "price": "0.00",
-                "image": deal.image
+                "image": deal.image || deal.thumbnail,
+                "offers": {
+                  "@type": "Offer",
+                  "priceCurrency": "USD",
+                  "price": "0.00",
+                  "availability": "https://schema.org/InStock",
+                  "itemCondition": "https://schema.org/NewCondition"
+                }
               }
             }))
           })}
@@ -849,7 +854,6 @@ export default function App() {
                <button type="button" onClick={goFreeGames} className="text-left py-1 hover:text-white hover:translate-x-1 transition-all">All Free Games</button>
                <button type="button" onClick={() => {navigate('/free-steam-games')}} className="text-left py-1 hover:text-white hover:translate-x-1 transition-all">Free Steam Games</button>
                <button type="button" onClick={() => {navigate('/free-epic-games')}} className="text-left py-1 hover:text-white hover:translate-x-1 transition-all">Epic Games Giveaways</button>
-               <Link to="/article/hp-omen-16-vs-lenovo-loq" className="text-left py-1 hover:text-white hover:translate-x-1 transition-all">Reviews: Omen vs LOQ</Link>
             </div>
              <div className="flex flex-col gap-4">
                <span className="text-[#7C3AED] mb-2 font-black tracking-[0.2em]">Legal</span>

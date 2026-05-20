@@ -89,15 +89,15 @@ export function PrivacyPolicy() {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4 text-white">5. Advertising and Cookies</h2>
+          <h2 className="text-2xl font-bold mb-4 text-white">5. Google AdSense, Advertising and Cookies</h2>
           <p className="text-white/80 leading-relaxed mb-4">
-            Third-party vendors, including Google, use cookies (such as the DoubleClick cookie) to serve ads based on a user's prior visits to our website or other websites.
+            We use Google AdSense to serve ads on GamesDealsHub. Third-party vendors, including Google, use cookies (such as the DoubleClick cookie) to serve ads based on a user's prior visits to our website or other websites.
           </p>
           <p className="text-white/80 leading-relaxed mb-4">
-            Google's use of advertising cookies enables it and its partners to serve ads to users based on their visit to our site and/or other sites on the Internet.
+            Google's use of advertising cookies enables it and its partners to serve Personalized Advertising to users based on their visit to our site and/or other sites on the Internet.
           </p>
           <p className="text-white/80 leading-relaxed">
-            You may opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="text-[#7C3AED] hover:underline font-bold">Google Ads Settings</a>. Alternatively, you can opt out of a third-party vendor's use of cookies for personalized advertising by visiting the Network Advertising Initiative opt-out page at <a href="https://www.aboutads.info" target="_blank" rel="noopener noreferrer" className="text-[#7C3AED] hover:underline font-bold">www.aboutads.info</a> or <a href="https://optout.networkadvertising.org" target="_blank" rel="noopener noreferrer" className="text-[#7C3AED] hover:underline font-bold">optout.networkadvertising.org</a>.
+            You may opt out of personalized advertising by visiting the <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="text-[#7C3AED] hover:underline font-bold">Google Ads Settings</a>. Alternatively, you can opt out of a third-party vendor's use of cookies for personalized advertising by visiting the Network Advertising Initiative opt-out page at <a href="https://www.aboutads.info" target="_blank" rel="noopener noreferrer" className="text-[#7C3AED] hover:underline font-bold">www.aboutads.info</a> or <a href="https://optout.networkadvertising.org" target="_blank" rel="noopener noreferrer" className="text-[#7C3AED] hover:underline font-bold">optout.networkadvertising.org</a>.
           </p>
         </section>
 

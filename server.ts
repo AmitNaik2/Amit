@@ -14,8 +14,11 @@ dotenv.config({ path: ".env.local", override: true });
 // Create a mock users store (in a real app, this would be a DB like Firestore or Postgres)
 const subscribedEmails = new Set<string>();
 
-function isActiveGiveaway(item: { end_date?: string; status?: string }) {
+function isActiveGiveaway(item: { title?: string; end_date?: string; status?: string }) {
   if (item.status && item.status.toLowerCase() !== "active") return false;
+  
+  if (item.title && item.title.includes("Terrors to Unveil")) return false; // aggressively hide known expired
+
   if (!item.end_date || item.end_date === "N/A") return true;
 
   const endStr = item.end_date.includes(" ") && !item.end_date.includes("Z") && !item.end_date.includes("GMT")

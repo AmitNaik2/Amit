@@ -35,7 +35,7 @@ export function AboutUs() {
         <section className="mb-8">
           <h2 className="text-2xl font-bold mb-4 text-white">Who Are We?</h2>
           <p className="text-white/80 leading-relaxed mb-4">
-            GamesDealsHub was founded by Amit, a lifelong PC gamer and software engineer who grew tired of expired deals and clickbait giveaway links. What started as a personal script to track Steam free weekends has evolved into a comprehensive tracking platform relied upon by thousands of gamers every day.
+            Founded by Amit Naik, GamesDealsHub is dedicated to helping gamers find premium titles for free. We manually verify every deal to ensure our community never misses a high-value giveaway.
           </p>
           <p className="text-white/80 leading-relaxed mb-4">
             Our team consists of gaming enthusiasts who actively curate and monitor digital storefront APIs. We combine automated tracking with manual curation to make sure every link on our site points to a legitimate, safe digital storefront.
