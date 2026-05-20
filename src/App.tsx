@@ -503,7 +503,7 @@ export default function App() {
                    All
                  </button>
                  
-                 {(['Mythic', 'Legendary', 'Epic', 'Rare', 'Uncommon', 'Common'] as RarityLevel[]).map(rarity => {
+                 {(['Mythic', 'Legendary', 'Epic', 'Rare', 'Uncommon', 'Common'] as RarityLevel[]).filter(rarity => deals.some(d => getDealRarity(d).label === rarity)).map(rarity => {
                     let colors = "";
                     if (rarity === "Mythic") colors = "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 border-pink-500/50 bg-white/5 shadow-[0_0_15px_rgba(236,72,153,0.3)]";
                     if (rarity === "Legendary") colors = "text-amber-400 border-amber-400/50 bg-amber-400/20 shadow-[0_0_15px_rgba(251,191,36,0.2)]";
@@ -786,11 +786,11 @@ export default function App() {
           </div>
           
           {/* Right Sidebar (Feeds) */}
-          <aside className="hidden xl:block w-72 shrink-0 xl:sticky xl:top-24 space-y-6">
+          <aside className="xl:w-72 shrink-0 xl:sticky xl:top-24 space-y-6 mt-12 xl:mt-0 pt-8 xl:pt-0 border-t xl:border-t-0 border-white/10">
             <LiveFeed deals={deals} />
             <UpcomingDrops deals={deals} onViewAll={goFreeGames} />
             <GamingNews />
-            <div className="pt-4 border-t border-white/10">
+            <div className="pt-4 border-t border-white/10 hidden xl:block">
               <InlineSubscribe />
             </div>
           </aside>
