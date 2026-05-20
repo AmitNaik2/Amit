@@ -1,49 +1,22 @@
 {
   "version": 2,
+  "functions": {
+    "api/**/*.ts": {
+      "includeFiles": "dist/**"
+    }
+  },
   "rewrites": [
-    {
-      "source": "/about",
-      "destination": "/api/about"
-    },
-    {
-      "source": "/privacy",
-      "destination": "/api/privacy"
-    },
-    {
-      "source": "/terms",
-      "destination": "/api/terms"
-    },
-    {
-      "source": "/contact",
-      "destination": "/api/contact"
-    },
-    {
-      "source": "/api/giveaways-feed",
-      "destination": "/api/index"
-    },
-    {
-      "source": "/api/dlc-feed",
-      "destination": "/api/index"
-    },
-    {
-      "source": "/api/premium-feed",
-      "destination": "/api/index"
-    },
-    {
-      "source": "/api/subscribe",
-      "destination": "/api/index"
-    },
-    {
-      "source": "/api/unsubscribe",
-      "destination": "/api/index"
-    },
     {
       "source": "/api/(.*)",
       "destination": "/api/index"
     },
     {
+      "source": "/(assets/.*|sitemap\\.xml|robots\\.txt|ads\\.txt|og-image\\.jpg)",
+      "destination": "/$1"
+    },
+    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/api/index"
     }
   ]
 }

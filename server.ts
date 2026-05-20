@@ -624,6 +624,33 @@ app.use(express.json());
     res.json({ message: "Subscribed successfully! Emails will be sent for new deals." });
   });
 
+  // Handle contact form submission
+  app.post("/api/contact-submit", async (req, res) => {
+    const { name, email, message } = req.body;
+    if (!name || !email || !message) {
+      return res.status(400).json({ error: "Missing fields" });
+    }
+    
+    try {
+      if (process.env.SMTP_HOST) {
+        await transporter.sendMail({
+          from: process.env.SMTP_FROM || "GameDeals <no-reply@gamedeals.com>",
+          to: process.env.ADMIN_EMAIL || "amitnaik0023@gmail.com",
+          replyTo: email,
+          subject: `New Contact Form Message from ${name}`,
+          text: `You have a new message from the GamesDealsHub contact form.\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+        });
+        console.log("Contact email sent.");
+      } else {
+        console.log("Simulating contact email (No SMTP Configured).", { name, email, message });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error sending contact email:", error);
+      res.status(500).json({ error: "Failed to send message" });
+    }
+  });
+
   // Share a deal
   app.post("/api/share", async (req, res) => {
     const { email, dealTitle, dealUrl } = req.body;
@@ -873,8 +900,8 @@ app.use(express.json());
       }
     };
     startVite();
-  } else if (!process.env.VERCEL) {
-    // In production, serve the built static UI
+  } else {
+    // In production (including Vercel), serve the built static UI
     const distPath = path.join(process.cwd(), "dist");
     
     // Read the built index.html for rewriting

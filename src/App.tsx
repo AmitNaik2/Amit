@@ -1,6 +1,6 @@
 import { useState, useEffect, type FormEvent, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Gamepad2, RefreshCw, AlertCircle, RefreshCcw, CheckCircle2, Search, Filter } from "lucide-react";
+import { Gamepad2, RefreshCw, AlertCircle, RefreshCcw, CheckCircle2, Search, Filter, Info } from "lucide-react";
 import { Routes, Route, useLocation, useNavigate, Link, Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { DealCard } from "./components/DealCard";
@@ -128,6 +128,15 @@ function InlineSubscribe() {
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [cookieConsent, setCookieConsent] = useState(() => {
+    return localStorage.getItem("cookieConsent") === "true";
+  });
+
+  const acceptCookies = () => {
+    localStorage.setItem("cookieConsent", "true");
+    setCookieConsent(true);
+  };
 
   const [activeTab, setActiveTab] = useState<"Games" | "DLC" | "Premium">("Games");
   
@@ -869,6 +878,28 @@ export default function App() {
         dealTitle={shareData?.title}
         dealUrl={shareData?.url}
       />
+
+      {!cookieConsent && (
+        <div className="fixed bottom-0 left-0 w-full z-[100] p-4 bg-black/90 border-t border-[#7C3AED]/30 backdrop-blur-md">
+          <div className="container mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-start gap-4 flex-1">
+              <Info className="w-5 h-5 text-[#7C3AED] shrink-0 mt-0.5" />
+              <p className="text-sm text-white/70">
+                We use cookies to ensure you get the best experience on our website, personalize content, and analyze our traffic. By continuing to use our site, you accept our use of cookies.
+                <Link to="/privacy" className="text-[#7C3AED] hover:text-white underline ml-1">Learn more</Link>
+              </p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <button 
+                onClick={acceptCookies} 
+                className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-6 py-2 rounded-full text-sm font-bold tracking-widest transition-colors uppercase"
+              >
+                Accept All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

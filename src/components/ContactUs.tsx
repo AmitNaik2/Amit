@@ -6,13 +6,31 @@ import { useState, type FormEvent } from "react";
 export function ContactUs() {
   const [formStatus, setFormStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormStatus("submitting");
-    // Simulate form submission
-    setTimeout(() => {
-      setFormStatus("success");
-    }, 1000);
+    
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      message: formData.get("message")
+    };
+
+    try {
+      const res = await fetch("/api/contact-submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) {
+        setFormStatus("success");
+      } else {
+        setFormStatus("error");
+      }
+    } catch (err) {
+      setFormStatus("error");
+    }
   };
 
   return (
@@ -73,10 +91,14 @@ export function ContactUs() {
                 </div>
                 <p className="text-sm font-medium">Thank you! Your message has been sent successfully. We'll get back to you soon.</p>
               </div>
-            ) : (
-              <form action="https://formsubmit.co/gamedealshub1@gmail.com" method="POST" className="space-y-4">
-                <input type="hidden" name="_next" value="https://www.gamesdealshub.me/contact" />
-                <input type="hidden" name="_captcha" value="false" />
+            ) : formStatus === "error" ? (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl flex items-center gap-3 mb-4">
+                <p className="text-sm font-medium">Failed to send message. Please try again later or email us directly.</p>
+              </div>
+            ) : null}
+            
+            {formStatus !== "success" && (
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-white/70 mb-1">Name</label>
                   <input
@@ -112,10 +134,11 @@ export function ContactUs() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-medium py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
+                  disabled={formStatus === "submitting"}
+                  className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] disabled:opacity-50 text-white font-medium py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   <Send className="w-4 h-4" />
-                  Send Message
+                  {formStatus === "submitting" ? "Sending..." : "Send Message"}
                 </button>
               </form>
             )}
