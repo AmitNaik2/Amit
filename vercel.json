@@ -1,22 +1,29 @@
 {
   "version": 2,
-  "functions": {
-    "api/**/*.ts": {
-      "includeFiles": "dist/**"
-    }
-  },
   "rewrites": [
+    {
+      "source": "/about",
+      "destination": "/api/about"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/api/privacy"
+    },
+    {
+      "source": "/terms",
+      "destination": "/api/terms"
+    },
+    {
+      "source": "/contact",
+      "destination": "/api/contact"
+    },
     {
       "source": "/api/(.*)",
       "destination": "/api/index"
     },
     {
-      "source": "/(assets/.*|sitemap\\.xml|robots\\.txt|ads\\.txt|og-image\\.jpg)",
-      "destination": "/$1"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/api/index"
+      "destination": "/index.html"
     }
   ]
 }
