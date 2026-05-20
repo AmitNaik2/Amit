@@ -905,7 +905,6 @@ app.use(express.json());
     const distPath = path.join(process.cwd(), "dist");
     
     // Read the built index.html for rewriting
-    const fs = require("fs");
     let baseHtml = "";
     try {
       baseHtml = fs.readFileSync(path.join(distPath, "index.html"), "utf-8");
