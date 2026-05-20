@@ -77,29 +77,50 @@ app.use(express.json());
     }
   }
 
+  const gamerPowerCache = new Map<string, { data: any, timestamp: number }>();
+  const GAMERPOWER_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
   async function fetchGamerPower(url: string) {
+    const cached = gamerPowerCache.get(url);
     const headers = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" };
+    
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 4000);
       let response = await fetch(url, { headers, signal: controller.signal as any });
       clearTimeout(timeout);
       if (response.ok) {
-        return await response.json();
+        const data = await response.json();
+        gamerPowerCache.set(url, { data, timestamp: Date.now() });
+        return data;
       }
     } catch (err) {
-      // Ignore initial errors to trigger fallback
+      console.warn("Gamerpower primary fetch failed, falling back to proxy...");
     }
     
-    // Fallback to proxy if GamerPower blocks Vercel IPs or times out
-    const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
-    const controllerProxy = new AbortController();
-    const timeoutProxy = setTimeout(() => controllerProxy.abort(), 4500);
-    const proxyRes = await fetch(proxyUrl, { signal: controllerProxy.signal as any });
-    clearTimeout(timeoutProxy);
+    try {
+      // Fallback to proxy if GamerPower blocks Vercel IPs or times out
+      const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+      const controllerProxy = new AbortController();
+      const timeoutProxy = setTimeout(() => controllerProxy.abort(), 4500);
+      const proxyRes = await fetch(proxyUrl, { signal: controllerProxy.signal as any });
+      clearTimeout(timeoutProxy);
+      
+      if (proxyRes.ok) {
+        const data = await proxyRes.json();
+        gamerPowerCache.set(url, { data, timestamp: Date.now() });
+        return data;
+      }
+    } catch (err) {
+       console.warn("Proxy fallback also failed.");
+    }
+
+    if (cached) {
+      console.log("Serving stale GamerPower data from cache");
+      return cached.data;
+    }
     
-    if (!proxyRes.ok) throw new Error("Fallback proxy failed");
-    return await proxyRes.json();
+    throw new Error("All data fetches failed and no cache available.");
   }
 
   // Proxy the GamerPower API to avoid CORS and format data if needed
@@ -167,7 +188,10 @@ app.use(express.json());
     }
   });
 
+  const cheapsharkCache = new Map<string, { data: any, timestamp: number }>();
+
   async function fetchCheapshark(url: string) {
+    const cached = cheapsharkCache.get(url);
     const headers = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" };
     try {
       const controller = new AbortController();
@@ -177,20 +201,36 @@ app.use(express.json());
       if (response.ok) {
         const text = await response.text();
         const json = JSON.parse(text);
-        if (!json.error) return json;
+        if (!json.error) {
+           cheapsharkCache.set(url, { data: json, timestamp: Date.now() });
+           return json;
+        }
       }
     } catch (err) {
       // Fallback
     }
 
-    const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
-    const controllerProxy = new AbortController();
-    const timeoutProxy = setTimeout(() => controllerProxy.abort(), 8000);
-    const proxyRes = await fetch(proxyUrl, { signal: controllerProxy.signal as any });
-    clearTimeout(timeoutProxy);
+    try {
+       const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+       const controllerProxy = new AbortController();
+       const timeoutProxy = setTimeout(() => controllerProxy.abort(), 8000);
+       const proxyRes = await fetch(proxyUrl, { signal: controllerProxy.signal as any });
+       clearTimeout(timeoutProxy);
+       
+       if (proxyRes.ok) {
+          const json = await proxyRes.json();
+          cheapsharkCache.set(url, { data: json, timestamp: Date.now() });
+          return json;
+       }
+    } catch(err) {
+       // proxy failed
+    }
     
-    if (!proxyRes.ok) throw new Error("Fallback proxy failed");
-    return await proxyRes.json();
+    if (cached) {
+       return cached.data;
+    }
+    
+    throw new Error("All data fetches failed and no cache available.");
   }
 
   // Proxy the CheapShark API
