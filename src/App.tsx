@@ -17,6 +17,8 @@ import { EmailModal } from "./components/EmailModal";
 import { type GameDeal } from "./types";
 import { getDealRarity, type RarityLevel } from "./lib/deal-utils";
 import { cn, openExternalUrl } from "./lib/utils";
+import { HistoricalPrices } from "./components/HistoricalPrices";
+import { UpcomingDropsGrid } from "./components/UpcomingDropsGrid";
 import { FeaturedDeal } from "./components/FeaturedDeal";
 import { LiveFeed } from "./components/LiveFeed";
 import { UpcomingDrops } from "./components/UpcomingDrops";
@@ -143,7 +145,7 @@ export default function App() {
     setCookieConsent(true);
   };
 
-  const [activeTab, setActiveTab] = useState<"Games" | "Upcoming" | "DLC" | "Premium">("Games");
+  const [activeTab, setActiveTab] = useState<"Games" | "DLC" | "Premium" | "Upcoming">("Games");
   
   const [deals, setDeals] = useState<GameDeal[]>([]); // This will just be Free Games now
   const [upcomingDeals, setUpcomingDeals] = useState<GameDeal[]>([]);
@@ -455,6 +457,11 @@ export default function App() {
     scrollToDeals();
   };
 
+  const goUpcoming = () => {
+    setActiveTab("Upcoming");
+    scrollToDeals();
+  };
+
   const handleNavbarSearch = (value: string) => {
     setActiveTab("Games");
     setSelectedRarity("All");
@@ -536,7 +543,7 @@ export default function App() {
               <>
                 <HeroSection 
                   onExploreClick={goFreeGames}
-                  onTrendingClick={goTrending}
+                  onTrendingClick={goUpcoming}
                 />
 
               {/* Error State */}
@@ -562,9 +569,9 @@ export default function App() {
             <div id="deals-tabs" className="flex items-center justify-between mb-8 pb-0 overflow-x-auto hide-scrollbar flex-nowrap border-b border-white/5">
               <div className="flex items-center space-x-6">
                  <button onClick={() => setActiveTab("Games")} className={cn("whitespace-nowrap pb-4 text-[11px] md:text-sm font-orbitron font-bold uppercase tracking-widest transition-all border-b-2", activeTab === "Games" ? "text-white border-[#06B6D4] text-shadow-[0_0_10px_rgba(6,182,212,0.8)]" : "text-[#9CA3AF] border-transparent hover:text-white")}>Tactical Intel</button>
-                 <button onClick={() => setActiveTab("Upcoming")} className={cn("whitespace-nowrap pb-4 text-[11px] md:text-sm font-orbitron font-bold uppercase tracking-widest transition-all border-b-2", activeTab === "Upcoming" ? "text-white border-[#06B6D4] text-shadow-[0_0_10px_rgba(6,182,212,0.8)]" : "text-[#9CA3AF] border-transparent hover:text-white")}>Upcoming Drops</button>
                  <button onClick={() => setActiveTab("DLC")} className={cn("whitespace-nowrap pb-4 text-[11px] md:text-sm font-orbitron font-bold uppercase tracking-widest transition-all border-b-2", activeTab === "DLC" ? "text-white border-[#06B6D4] text-shadow-[0_0_10px_rgba(6,182,212,0.8)]" : "text-[#9CA3AF] border-transparent hover:text-white")}>Free DLC Intelligence</button>
                  <button onClick={() => setActiveTab("Premium")} className={cn("whitespace-nowrap pb-4 text-[11px] md:text-sm font-orbitron font-bold uppercase tracking-widest transition-all border-b-2", activeTab === "Premium" ? "text-white border-[#06B6D4] text-shadow-[0_0_10px_rgba(6,182,212,0.8)]" : "text-[#9CA3AF] border-transparent hover:text-white")}>Trending Market Intel</button>
+                 <button onClick={() => setActiveTab("Upcoming")} className={cn("whitespace-nowrap pb-4 text-[11px] md:text-sm font-orbitron font-bold uppercase tracking-widest transition-all border-b-2", activeTab === "Upcoming" ? "text-white border-[#06B6D4] text-shadow-[0_0_10px_rgba(6,182,212,0.8)]" : "text-[#9CA3AF] border-transparent hover:text-white")}>Upcoming Drops</button>
               </div>
               <div className="hidden md:flex items-center gap-4 text-xs font-mono text-[#9CA3AF] px-2 tracking-widest uppercase shrink-0 pb-4">
                 <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-[#22C55E]" /> {deals.length + dlcDeals.length} Tracked</span>
@@ -735,28 +742,6 @@ export default function App() {
               );
             })()}
             </>
-            ) : activeTab === "Upcoming" ? (
-              <>
-                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-                    <AnimatePresence mode="popLayout">
-                      {upcomingDeals.map((deal, index) => (
-                        <DealCard 
-                          key={deal.id}
-                          deal={deal}
-                          index={index}
-                          priority={index < 4}
-                          onShare={openShareModal}
-                          onRemind={openSubscribeModal}
-                        />
-                      ))}
-                    </AnimatePresence>
-                 </div>
-                 {upcomingDeals.length === 0 && (
-                   <div className="py-20 text-center text-white/50">
-                     No upcoming drops tracked right now. Check back later!
-                   </div>
-                 )}
-              </>
             ) : activeTab === "DLC" ? (
               <>
              {/* Floating Top Bar (Filters) */}
@@ -909,7 +894,17 @@ export default function App() {
                    </div>
                 )}
               </>
+            ) : activeTab === "Upcoming" ? (
+              <>
+                <div className="space-y-6">
+                  <UpcomingDropsGrid deals={upcomingDeals} />
+                </div>
+              </>
             ) : null}
+            
+            <div className="mt-12 pt-8 border-t border-white/10 space-y-12">
+              <HistoricalPrices />
+            </div>
             
             {/* Mobile / Tablet Subscribe Box */}
             <div className="xl:hidden mt-12 pt-8 border-t border-white/10">
@@ -920,7 +915,7 @@ export default function App() {
           {/* Right Sidebar (Feeds) */}
           <aside className="xl:w-72 shrink-0 xl:sticky xl:top-24 space-y-6 mt-12 xl:mt-0 pt-8 xl:pt-0 border-t xl:border-t-0 border-white/10">
             <LiveFeed deals={activeGamesDeals} />
-            {activeTab !== 'Upcoming' && <UpcomingDrops deals={upcomingDeals} onViewAll={() => { setActiveTab('Upcoming'); scrollToDeals(); }} />}
+            <UpcomingDrops deals={upcomingDeals} onViewAll={goUpcoming} />
             <GamingNews />
             <div className="pt-4 border-t border-white/10 hidden xl:block">
               <InlineSubscribe />
