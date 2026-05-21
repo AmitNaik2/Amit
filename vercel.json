@@ -7,7 +7,7 @@
   },
   "rewrites": [
     {
-      "source": "/(assets/.*|sitemap\\.xml|robots\\.txt|ads\\.txt|og-image\\.jpg)",
+      "source": "/(assets/.*|ads\\.txt|og-image\\.jpg)",
       "destination": "/$1"
     },
     {

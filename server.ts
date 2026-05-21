@@ -1003,13 +1003,22 @@ Sitemap: https://www.gamesdealshub.me/sitemap.xml
     app.get("*", async (req, res) => {
       let html = baseHtml;
       if (!html) {
-        return res.sendFile(path.join(distPath, "index.html"));
+        try {
+          html = fs.readFileSync(path.join(__dirname, "index.html"), "utf-8");
+        } catch(e) {
+          try {
+            html = fs.readFileSync(path.join(process.cwd(), "dist", "index.html"), "utf-8");
+          } catch(e2) {
+            return res.sendFile(path.join(distPath, "index.html"));
+          }
+        }
       }
 
       const pathName = req.path;
       let title = "GamesDealsHub | Track Free PC Games & Gaming Deals";
       let desc = "Track and claim free PC games before they expire. Find Steam free weekends, Epic Games giveaways, GOG freebies, and limited-time premium AAA game promotions.";
       let preRenderedContent = "";
+      let ogImage = "https://www.gamesdealshub.me/og-image.jpg";
 
       if (pathName === "/about") {
         title = "About Us | GamesDealsHub";
@@ -1036,6 +1045,7 @@ Sitemap: https://www.gamesdealshub.me/sitemap.xml
           if (dl && dl.title) {
             title = `${dl.title} - Free ${dl.platforms || 'PC'} Game | GamesDealsHub`;
             desc = dl.description ? dl.description.substring(0, 160) + '...' : desc;
+            ogImage = dl.image || dl.thumbnail || ogImage;
             
             preRenderedContent = `
               <div class="game-deal-container" itemscope itemtype="https://schema.org/Product">
@@ -1048,7 +1058,6 @@ Sitemap: https://www.gamesdealshub.me/sitemap.xml
                 <a href="${dl.open_giveaway_url}">Claim Now</a>
               </div>
             `;
-            html = html.replace(/<meta property="og:image" content="[^"]*" \/>/gi, `<meta property="og:image" content="${dl.image || dl.thumbnail}" />`);
           }
         } catch (e) {
           console.warn("SSR game fetch failed", e);
@@ -1096,35 +1105,32 @@ Sitemap: https://www.gamesdealshub.me/sitemap.xml
 
       const canonical = `https://www.gamesdealshub.me${pathName === '/' ? '' : pathName}`;
 
-      // Rewrite tags in HTML
-      html = html.replace(
-        /<title>([^<]*)<\/title>/gi,
-        `<title>${title}</title>`
-      );
-      
-      html = html.replace(
-        /<meta (name|property)="(title|og:title|twitter:title)" content="([^"]*)" \/>/gi,
-        `<meta $1="$2" content="${title}" />`
-      );
+      const $ = cheerio.load(html);
 
-      html = html.replace(
-        /<meta (name|property)="(description|og:description|twitter:description)" content="([^"]*)" \/>/gi,
-        `<meta $1="$2" content="${desc}" />`
-      );
+      // Apply dynamic meta tags using cheerio
+      $('title').text(title);
+      $('meta[name="title"]').attr('content', title);
+      $('meta[property="og:title"]').attr('content', title);
+      $('meta[property="twitter:title"]').attr('content', title);
 
-      html = html.replace(
-        /<link rel="canonical" href="([^"]*)" \/>/gi,
-        `<link rel="canonical" href="${canonical}" />`
-      );
-      
-      if (preRenderedContent) {
-        html = html.replace(
-          /<div id="root"><\/div>/gi,
-          `<div id="root">${preRenderedContent}</div>`
-        );
+      $('meta[name="description"]').attr('content', desc);
+      $('meta[property="og:description"]').attr('content', desc);
+      $('meta[property="twitter:description"]').attr('content', desc);
+
+      $('link[rel="canonical"]').attr('href', canonical);
+      $('meta[property="og:url"]').attr('content', canonical);
+      $('meta[property="twitter:url"]').attr('content', canonical);
+
+      if (ogImage) {
+        $('meta[property="og:image"]').attr('content', ogImage);
+        $('meta[property="twitter:image"]').attr('content', ogImage);
       }
 
-      res.send(html);
+      if (preRenderedContent) {
+        $('#root').html(preRenderedContent);
+      }
+
+      res.send($.html());
     });
   }
 
