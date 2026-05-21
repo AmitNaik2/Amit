@@ -88,7 +88,27 @@ export function HeroSection({ onExploreClick, onTrendingClick }: { onExploreClic
             </button>
           </div>
 
-          <form className="flex w-full max-w-sm items-center gap-2 mb-4" onSubmit={(e) => { e.preventDefault(); alert('Subscribed successfully!'); }}>
+          <form className="flex w-full max-w-sm items-center gap-2 mb-4" onSubmit={async (e) => { 
+            e.preventDefault(); 
+            const emailInput = (e.target as HTMLFormElement).querySelector('input[type="email"]') as HTMLInputElement;
+            const email = emailInput.value;
+            if(!email) return;
+            try {
+              const res = await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+              });
+              if(res.ok) {
+                 alert('Subscribed successfully!');
+                 emailInput.value = '';
+              } else {
+                 alert('Failed to subscribe. Please try again.');
+              }
+            } catch(err) {
+              alert('Error subscribing. Try again later.');
+            }
+          }}>
             <input type="email" placeholder="Enter your email" required className="flex-1 h-10 px-4 rounded border border-white/20 bg-black/50 text-white placeholder:text-white/40 focus:outline-none focus:border-[#7C3AED] transition-colors" />
             <button type="submit" className="h-10 px-4 rounded bg-[#7C3AED] text-white text-xs font-bold uppercase tracking-widest hover:bg-[#6D28D9] transition-colors">
               Notify Me

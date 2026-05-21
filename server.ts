@@ -1084,16 +1084,17 @@ Sitemap: https://www.gamesdealshub.me/sitemap.xml
         try {
            const list = await fetchGamerPower(apiUrl);
            if (Array.isArray(list)) {
-             preRenderedContent = `<h1>${title}</h1><ul>`;
-             list.slice(0, 20).forEach((item: any) => {
+             preRenderedContent = `<h1 itemprop="name">${title}</h1><ul itemscope itemtype="https://schema.org/ItemList">`;
+             list.slice(0, 20).forEach((item: any, index: number) => {
                 preRenderedContent += `
-                  <li>
-                    <a href="/game/${item.id}">
-                      <h2>${item.title}</h2>
-                      <img src="${item.thumbnail}" alt="${item.title}" loading="lazy" />
+                  <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <meta itemprop="position" content="${index + 1}" />
+                    <a href="/game/${item.id}" itemprop="url">
+                      <h2 itemprop="name">${item.title}</h2>
+                      <img itemprop="image" src="${item.thumbnail}" alt="${item.title}" loading="lazy" />
                     </a>
                     <p>${item.platforms} | ${item.type}</p>
-                    <p>${item.description}</p>
+                    <p itemprop="description">${item.description}</p>
                   </li>
                 `;
              });
@@ -1129,8 +1130,8 @@ Sitemap: https://www.gamesdealshub.me/sitemap.xml
       
       if (preRenderedContent) {
         html = html.replace(
-          /<!-- Fallback content for SEO bots that do not execute JavaScript -->/gi,
-          `${preRenderedContent}\n<!-- Fallback content for SEO bots that do not execute JavaScript -->`
+          /<div id="root"><\/div>/gi,
+          `<div id="root">${preRenderedContent}</div>`
         );
       }
 
