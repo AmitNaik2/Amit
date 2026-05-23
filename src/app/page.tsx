@@ -37,7 +37,9 @@ async function getUpcomingGames() {
         image: imageObj ? imageObj.url : "",
         startDate: promo.startDate,
         endDate: promo.endDate,
-        originalPrice: item.price?.totalPrice?.fmtPrice?.originalPrice || "Paid"
+        originalPrice: item.price?.totalPrice?.fmtPrice?.originalPrice || "Paid",
+        platforms: "Epic Games",
+        type: "Free Game"
       };
     });
   } catch (err) {

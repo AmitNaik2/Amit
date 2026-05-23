@@ -293,8 +293,9 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
   const filteredLootDeals = dlcDeals.filter(deal => {
     const search = lootSearch.toLowerCase();
     if (!search) return true;
-    const matchPlatform = deal.platforms.toLowerCase().includes(search);
-    const matchTitle = deal.title.toLowerCase().includes(search) || deal.instructions.toLowerCase().includes(search);
+    const matchPlatform = deal.platforms ? deal.platforms.toLowerCase().includes(search) : false;
+    const matchTitle = (deal.title ? deal.title.toLowerCase().includes(search) : false) || 
+                       (deal.instructions ? deal.instructions.toLowerCase().includes(search) : false);
     return matchPlatform || matchTitle;
   });
 
@@ -306,9 +307,10 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
     if (!search) return true;
     const isStoreName = ['steam', 'epic games', 'gog', 'humble store'].includes(search);
     if (isStoreName) {
-      return deal.platforms.toLowerCase().includes(search);
+      return deal.platforms ? deal.platforms.toLowerCase().includes(search) : false;
     }
-    return deal.title.toLowerCase().includes(search) || deal.platforms.toLowerCase().includes(search);
+    return (deal.title ? deal.title.toLowerCase().includes(search) : false) || 
+           (deal.platforms ? deal.platforms.toLowerCase().includes(search) : false);
   });
   
   // Modal State
@@ -644,8 +646,8 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
                     if (selectedRarity === 'All' && !platformSearch && idx === 0) return false;
                     
                     const search = platformSearch.toLowerCase();
-                    const platformLower = deal.platforms.toLowerCase();
-                    const titleLower = deal.title.toLowerCase();
+                    const platformLower = deal.platforms ? deal.platforms.toLowerCase() : "";
+                    const titleLower = deal.title ? deal.title.toLowerCase() : "";
                     const matchRarity = selectedRarity === 'All' || getDealRarity(deal).label === selectedRarity;
                     let matchPlatform = !search;
                     if (search) {
