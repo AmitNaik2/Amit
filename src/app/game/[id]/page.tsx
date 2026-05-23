@@ -11,10 +11,11 @@ export default function GamePage() {
   useEffect(() => {
     async function fetchDeals() {
       try {
-        const [resGames, resUpcoming, dbRes] = await Promise.all([
+        const [resGames, resUpcoming, dbRes, premiumRes] = await Promise.all([
           fetch("/api/giveaways-feed?type=game").catch(() => null),
           fetch("/api/upcoming-free-games").catch(() => null),
-          fetch("/api/dlc-feed").catch(() => null)
+          fetch("/api/dlc-feed").catch(() => null),
+          fetch("/api/premium-feed").catch(() => null)
         ]);
 
         let allDeals: GameDeal[] = [];
@@ -32,6 +33,32 @@ export default function GamePage() {
         if (dbRes && dbRes.ok) {
            const dlc = await dbRes.json();
            allDeals = [...allDeals, ...dlc];
+        }
+        
+        if (premiumRes && premiumRes.ok) {
+           let csData = await premiumRes.json();
+           const csDeals: GameDeal[] = csData.map((cs: any) => ({
+              id: "cs_" + cs.dealID,
+              title: cs.title,
+              description: "Premium Deal on " + (cs.storeName || "Store"),
+              instructions: "Get it on " + (cs.storeName || "Store"),
+              url: cs.dealID ? "https://www.cheapshark.com/redirect?dealID=" + cs.dealID : "",
+              image: cs.thumb || "",
+              type: "Discount",
+              platforms: "PC",
+              users: 0,
+              status: "Active",
+              savings: cs.savings,
+              salePrice: cs.salePrice,
+              normalPrice: cs.normalPrice,
+              dealRating: cs.dealRating,
+              steamRatingText: cs.steamRatingText,
+              steamRatingPercent: cs.steamRatingPercent,
+              steamRatingCount: cs.steamRatingCount,
+              storeName: cs.storeName,
+              steamAppID: cs.steamAppID,
+           }));
+           allDeals = [...allDeals, ...csDeals];
         }
 
         setDeals(allDeals);
