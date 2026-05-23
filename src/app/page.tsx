@@ -1,15 +1,6 @@
 import ClientHome from "./ClientHome";
-import Script from "next/script";
-
-async function getActiveGames() {
-  try {
-    const res = await fetch('https://www.gamerpower.com/api/giveaways?type=game&sort-by=date', { next: { revalidate: 300 } });
-    if (!res.ok) return [];
-    return await res.json();
-  } catch (err) {
-    return [];
-  }
-}
+import { getActiveGames } from "../lib/gamerpower";
+import { StructuredData } from "../components/StructuredData";
 
 async function getUpcomingGames() {
   try {
@@ -55,9 +46,7 @@ export default async function Home() {
   ]);
 
   // Generate ItemList + Offer Schema
-  const itemListSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
+  const itemListSchemaData = {
     "itemListElement": activeGames.slice(0, 10).map((game: any, index: number) => ({
       "@type": "ListItem",
       "position": index + 1,
@@ -79,11 +68,7 @@ export default async function Home() {
 
   return (
     <>
-      <script
-        id="item-list-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
-      />
+      <StructuredData type="ItemList" data={itemListSchemaData} />
       <ClientHome initialActiveGames={activeGames} initialUpcomingGames={upcomingGames} />
     </>
   );
