@@ -12,8 +12,13 @@ export async function POST(request: Request) {
 
     const host = process.env.SMTP_HOST || 'smtp.gmail.com';
     const port = Number(process.env.SMTP_PORT) || 587;
-    const user = process.env.SMTP_EMAIL || 'gamedealshub1@gmail.com';
-    const pass = process.env.SMTP_PASSWORD || 'Amit_Naik12';
+    const user = process.env.SMTP_EMAIL;
+    const pass = process.env.SMTP_PASSWORD;
+
+    if (!user || !pass) {
+      console.error("SMTP credentials missing in environment variables");
+      return NextResponse.json({ error: 'Server misconfiguration: SMTP credentials missing.' }, { status: 500 });
+    }
 
     const transporter = nodemailer.createTransport({
       host,
