@@ -24,7 +24,7 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
 
   const gameInfo = useIgdb(deal?.title || "");
 
-  if (!deal && !isLoading && deals.length > 0) {
+  if (!deal && !isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center text-white">
         <h2 className="text-2xl font-bold mb-4">Deal Not Found</h2>
@@ -35,7 +35,7 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
     );
   }
 
-  if (!deal) {
+  if (isLoading || !deal) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
         <div className="w-12 h-12 border-t-2 border-[#8B5CF6] rounded-full animate-spin"></div>
