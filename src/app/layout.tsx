@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://gamedeals-next.vercel.app";
@@ -104,6 +105,7 @@ export default function RootLayout({
         </noscript>
 
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
