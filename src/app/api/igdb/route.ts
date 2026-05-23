@@ -36,13 +36,17 @@ async function fetchIgdbData(title: string) {
 
   let cleanTitle = String(title)
     .replace(/\(.*?\)/g, '')
-    .replace(/Giveaway/gi, '')
-    .replace(/Free Weekend/gi, '')
-    .replace(/Playtest/gi, '')
-    .replace(/The/gi, '')
+    .replace(/\b(Giveaway|Free Weekend|Playtest|DLC|Skin|Bundle|Edition|Pack|Content)\b/gi, '')
     .trim();
 
-  cleanTitle = cleanTitle.replace(/"/g, '').replace(/:/g, '');
+  // If there's a colon or a dash, often the first part is the main game name
+  if (cleanTitle.includes(':')) {
+    cleanTitle = cleanTitle.split(':')[0].trim();
+  } else if (cleanTitle.includes(' - ')) {
+    cleanTitle = cleanTitle.split(' - ')[0].trim();
+  }
+
+  cleanTitle = cleanTitle.replace(/"/g, '').trim();
 
   const response = await fetch("https://api.igdb.com/v4/games", {
     method: "POST",

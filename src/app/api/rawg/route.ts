@@ -11,9 +11,17 @@ async function fetchRawgData(title: string) {
 
   let cleanTitle = String(title)
     .replace(/\(.*?\)/g, '')
-    .replace(/\bGiveaway\b/gi, '')
-    .replace(/\bPlaytest\b/gi, '')
+    .replace(/\b(Giveaway|Free Weekend|Playtest|DLC|Skin|Bundle|Edition|Pack|Content)\b/gi, '')
     .trim();
+
+  // If there's a colon or a dash, often the first part is the main game name
+  if (cleanTitle.includes(':')) {
+    cleanTitle = cleanTitle.split(':')[0].trim();
+  } else if (cleanTitle.includes(' - ')) {
+    cleanTitle = cleanTitle.split(' - ')[0].trim();
+  }
+
+  cleanTitle = cleanTitle.replace(/"/g, '').trim();
 
   const encodedTitle = encodeURIComponent(cleanTitle);
   const response = await fetch(`https://api.rawg.io/api/games?search=${encodedTitle}&key=${rawgKey}&page_size=1`, {
