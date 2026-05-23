@@ -501,6 +501,34 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
                       </div>
                     )
                   )}
+
+                  {/* Navigation Arrows */}
+                  {mediaItems.length > 1 && (
+                    <>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedMediaIndex((prev) => (prev > 0 ? prev - 1 : mediaItems.length - 1));
+                          setIsPlaying(false);
+                        }}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-[#8B5CF6] flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 border border-white/10 hover:scale-110 z-10 backdrop-blur-sm shadow-xl"
+                        aria-label="Previous Media"
+                      >
+                        <ChevronLeft className="w-6 h-6 mr-0.5" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedMediaIndex((prev) => (prev < mediaItems.length - 1 ? prev + 1 : 0));
+                          setIsPlaying(false);
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-[#8B5CF6] flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 border border-white/10 hover:scale-110 z-10 backdrop-blur-sm shadow-xl"
+                        aria-label="Next Media"
+                      >
+                        <ChevronRight className="w-6 h-6 ml-0.5" />
+                      </button>
+                    </>
+                  )}
                 </div>
                 
                 {/* Thumbnails Grid */}
