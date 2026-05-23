@@ -32,8 +32,8 @@ interface AdminProps {
 
 export function Admin({ deals }: AdminProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [email, setEmail] = useState("admin@gamesdealshub.com");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -78,11 +78,14 @@ export function Admin({ deals }: AdminProps) {
           </div>
           <h2 className="text-2xl font-bold text-center mb-6 tracking-tight">Admin Portal</h2>
           
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4" autoComplete="off">
             <div>
               <label className="block text-xs font-semibold text-[#a1a1aa] mb-1 uppercase tracking-wider">Email</label>
               <input
                 type="text"
+                name="admin-email"
+                autoComplete="off"
+                data-lpignore="true"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-[#09090b] border border-[#3f3f46] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#3b82f6] transition-colors"
@@ -92,6 +95,9 @@ export function Admin({ deals }: AdminProps) {
               <label className="block text-xs font-semibold text-[#a1a1aa] mb-1 uppercase tracking-wider">Password</label>
               <input
                 type="password"
+                name="admin-password"
+                autoComplete="new-password"
+                data-lpignore="true"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-[#09090b] border border-[#3f3f46] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#3b82f6] transition-colors"
