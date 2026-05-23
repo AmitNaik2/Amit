@@ -1,99 +1,149 @@
-import { Metadata } from 'next';
-import Link from 'next/link';
-import { Shield } from 'lucide-react';
+"use client";
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy | GamesDealsHub',
-  description: 'Read the GamesDealsHub privacy policy — how we collect, use, and protect your personal data.',
-  alternates: { canonical: '/privacy' }
-};
+import { motion } from 'motion/react';
+import { Shield, Lock, Eye, CheckCircle2, AlertTriangle, Database } from 'lucide-react';
+import { LegalLayout } from '@/components/LegalLayout';
 
 export default function PrivacyPage() {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div className="min-h-screen pt-24 pb-20 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-[#8B5CF6]/10 flex items-center justify-center border border-[#8B5CF6]/30 shadow-[0_0_20px_rgba(139,92,246,0.2)]">
-            <Shield className="w-6 h-6 text-[#8B5CF6]" />
-          </div>
-          <h1 className="text-3xl md:text-5xl font-orbitron font-black text-white uppercase tracking-widest glow-text">Privacy Policy</h1>
-        </div>
+    <LegalLayout 
+      title="Privacy Policy" 
+      subtitle="Data Protection & Security Protocol" 
+      icon={<Shield className="w-8 h-8" />}
+      accentTheme="purple"
+    >
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="space-y-6"
+      >
+        <motion.div variants={itemVariants} className="flex items-center gap-3 mb-8">
+          <span className="px-3 py-1 bg-[#8B5CF6]/20 border border-[#8B5CF6]/50 rounded-md text-[#8B5CF6] text-xs font-mono tracking-widest uppercase shadow-[0_0_10px_rgba(139,92,246,0.3)]">
+            Last Updated: May 2026
+          </span>
+          <span className="text-[#9CA3AF] text-sm">v2.4.1</span>
+        </motion.div>
 
-        <div className="bg-[#0F172A]/80 backdrop-blur-xl border border-[#8B5CF6]/30 rounded-3xl p-8 md:p-12 shadow-[0_0_30px_rgba(139,92,246,0.15)] font-poppins text-[#9CA3AF] leading-relaxed space-y-8">
-          <p className="text-sm font-mono text-[#8B5CF6]">Last Updated: May 2026</p>
-
-          <p>
-            At <span className="text-[#06B6D4] font-orbitron font-bold tracking-wider">GamesDealsHub</span>, your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your information.
+        <motion.div variants={itemVariants} className="bg-[#0F172A]/80 backdrop-blur-md border border-white/5 p-6 rounded-2xl mb-8">
+          <p className="text-[#9CA3AF] leading-relaxed">
+            At <span className="text-white font-orbitron font-bold">GamesDealsHub</span>, your privacy is paramount. This Privacy Policy details how our systems collect, process, and encrypt your digital footprint.
           </p>
+        </motion.div>
 
-          <section className="space-y-4">
-            <h2 className="text-xl font-orbitron font-bold text-white uppercase tracking-widest">Information We Collect</h2>
-            <p>We may collect:</p>
-            <ul className="list-disc pl-6 space-y-2 text-white">
-              <li><span className="text-[#9CA3AF]">basic analytics information</span></li>
-              <li><span className="text-[#9CA3AF]">browser/device information</span></li>
-              <li><span className="text-[#9CA3AF]">pages visited</span></li>
-              <li><span className="text-[#9CA3AF]">cookies and usage data</span></li>
-            </ul>
-            <p className="mt-4">If you contact us directly, we may also receive:</p>
-            <ul className="list-disc pl-6 space-y-2 text-white">
-              <li><span className="text-[#9CA3AF]">your email address</span></li>
-              <li><span className="text-[#9CA3AF]">messages you send us</span></li>
-            </ul>
-            <p className="font-bold text-[#06B6D4] mt-4">We do not sell personal information.</p>
-          </section>
+        {/* Section 1 */}
+        <motion.div variants={itemVariants} className="group relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl blur-md"></div>
+          <div className="bg-[#050816]/80 backdrop-blur-xl border-l-4 border-l-[#8B5CF6] border-t border-r border-b border-white/5 rounded-2xl p-6 relative z-10 transition-all duration-300 group-hover:border-t-white/10 group-hover:border-r-white/10 group-hover:border-b-white/10">
+            <h2 className="flex items-center gap-3 text-lg font-orbitron font-bold text-white uppercase tracking-widest mb-4">
+              <Database className="w-5 h-5 text-[#8B5CF6]" /> Information We Collect
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p className="text-xs text-[#9CA3AF] uppercase tracking-widest mb-3">System Telemetry</p>
+                <ul className="space-y-2">
+                  {['Basic analytics information', 'Browser & device telemetry', 'Pages visited', 'Cookies and usage data'].map((item, i) => (
+                    <li key={i} className="flex items-center gap-2 text-sm text-[#E2E8F0]">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8B5CF6]" /> {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="text-xs text-[#9CA3AF] uppercase tracking-widest mb-3">Direct Contact</p>
+                <ul className="space-y-2">
+                  {['Your email address', 'Messages you send us'].map((item, i) => (
+                    <li key={i} className="flex items-center gap-2 text-sm text-[#E2E8F0]">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8B5CF6]" /> {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            
+            <div className="mt-6 bg-[#22C55E]/10 border border-[#22C55E]/30 rounded-xl p-4 flex items-start gap-3 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+               <Lock className="w-5 h-5 text-[#22C55E] shrink-0 mt-0.5" />
+               <div>
+                 <p className="text-[#22C55E] font-bold font-orbitron tracking-widest uppercase text-sm">Absolute Protocol</p>
+                 <p className="text-white text-sm">We do not sell personal information to third-party data brokers under any circumstances.</p>
+               </div>
+            </div>
+          </div>
+        </motion.div>
 
-          <section className="space-y-4">
-            <h2 className="text-xl font-orbitron font-bold text-white uppercase tracking-widest">Cookies</h2>
-            <p>GamesDealsHub may use cookies to:</p>
-            <ul className="list-disc pl-6 space-y-2 text-white">
-              <li><span className="text-[#9CA3AF]">improve website performance</span></li>
-              <li><span className="text-[#9CA3AF]">remember preferences</span></li>
-              <li><span className="text-[#9CA3AF]">analyze traffic</span></li>
-              <li><span className="text-[#9CA3AF]">display relevant advertisements</span></li>
-            </ul>
-            <p>You can disable cookies in your browser settings.</p>
-          </section>
+        {/* Section 2 */}
+        <motion.div variants={itemVariants} className="group relative">
+          <div className="bg-[#050816]/80 backdrop-blur-xl border-l-4 border-l-[#8B5CF6] border-t border-r border-b border-white/5 rounded-2xl p-6 relative z-10 transition-all duration-300">
+            <h2 className="flex items-center gap-3 text-lg font-orbitron font-bold text-white uppercase tracking-widest mb-4">
+              <Eye className="w-5 h-5 text-[#8B5CF6]" /> Cookies
+            </h2>
+            <p className="text-[#9CA3AF] text-sm mb-4">GamesDealsHub utilizes functional tracking cookies to:</p>
+            <div className="flex flex-wrap gap-3 mb-4">
+              {['Improve website performance', 'Remember preferences', 'Analyze traffic', 'Display relevant advertisements'].map((item, i) => (
+                <span key={i} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs text-[#E2E8F0]">
+                  {item}
+                </span>
+              ))}
+            </div>
+            <p className="text-xs text-[#9CA3AF] border-t border-white/5 pt-4 mt-2">You can disable cookies directly via your browser's security settings.</p>
+          </div>
+        </motion.div>
 
-          <section className="space-y-4">
-            <h2 className="text-xl font-orbitron font-bold text-white uppercase tracking-widest">Third-Party Services</h2>
-            <p>We may use third-party services including:</p>
-            <ul className="list-disc pl-6 space-y-2 text-white">
-              <li><span className="text-[#9CA3AF]">Google Analytics</span></li>
-              <li><span className="text-[#9CA3AF]">Google AdSense</span></li>
-              <li><span className="text-[#9CA3AF]">Steam/Epic Games APIs</span></li>
-              <li><span className="text-[#9CA3AF]">external affiliate services</span></li>
+        {/* Section 3 & 4 Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <motion.div variants={itemVariants} className="bg-[#050816]/80 backdrop-blur-xl border-l-4 border-l-[#06B6D4] border-t border-r border-b border-white/5 rounded-2xl p-6 hover:border-[#06B6D4]/30 transition-colors">
+            <h2 className="text-base font-orbitron font-bold text-white uppercase tracking-widest mb-4">Third-Party Services</h2>
+            <ul className="space-y-2 mb-4">
+              {['Google Analytics', 'Google AdSense', 'Steam/Epic Games APIs', 'External affiliate services'].map((item, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm text-[#E2E8F0]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#06B6D4]"></span> {item}
+                </li>
+              ))}
             </ul>
-            <p>These services may collect information according to their own privacy policies.</p>
-          </section>
+            <p className="text-xs text-[#9CA3AF]">These services may collect information according to their own privacy policies.</p>
+          </motion.div>
 
-          <section className="space-y-4">
-            <h2 className="text-xl font-orbitron font-bold text-white uppercase tracking-widest">Advertising</h2>
-            <p>
+          <motion.div variants={itemVariants} className="bg-[#050816]/80 backdrop-blur-xl border-l-4 border-l-[#EC4899] border-t border-r border-b border-white/5 rounded-2xl p-6 hover:border-[#EC4899]/30 transition-colors">
+            <h2 className="text-base font-orbitron font-bold text-white uppercase tracking-widest mb-4">Advertising Networks</h2>
+            <p className="text-sm text-[#E2E8F0] mb-4">
               Third-party vendors, including Google, may use cookies to serve ads based on your previous visits to this website or other websites.
             </p>
-            <p>
-              Google's advertising requirements can be found here: <br />
-              <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer" className="text-[#8B5CF6] hover:text-white font-bold transition-colors underline underline-offset-4">Google Advertising Policies</a>
-            </p>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-xl font-orbitron font-bold text-white uppercase tracking-widest">Data Security</h2>
-            <p>We work to protect your information, but no online platform can guarantee complete security.</p>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-xl font-orbitron font-bold text-white uppercase tracking-widest">Children's Privacy</h2>
-            <p>GamesDealsHub does not knowingly collect personal information from children under 13.</p>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-xl font-orbitron font-bold text-white uppercase tracking-widest">Changes to This Policy</h2>
-            <p>We may update this Privacy Policy at any time. Changes will be posted on this page.</p>
-          </section>
+            <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-[#EC4899]/10 border border-[#EC4899]/30 rounded-lg text-xs font-bold text-[#EC4899] hover:bg-[#EC4899] hover:text-white transition-all">
+              Google Advertising Policies
+            </a>
+          </motion.div>
         </div>
-      </div>
-    </div>
+
+        {/* Bottom Small Sections */}
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+            <h3 className="text-xs font-orbitron font-bold text-[#8B5CF6] uppercase tracking-widest mb-2 flex items-center gap-2"><Lock className="w-3 h-3" /> Data Security</h3>
+            <p className="text-xs text-[#9CA3AF]">We work to protect your information, but no online platform can guarantee complete security.</p>
+          </div>
+          <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+            <h3 className="text-xs font-orbitron font-bold text-[#8B5CF6] uppercase tracking-widest mb-2 flex items-center gap-2"><Eye className="w-3 h-3" /> Children's Privacy</h3>
+            <p className="text-xs text-[#9CA3AF]">GamesDealsHub does not knowingly collect personal information from children under 13.</p>
+          </div>
+          <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+            <h3 className="text-xs font-orbitron font-bold text-[#8B5CF6] uppercase tracking-widest mb-2 flex items-center gap-2"><AlertTriangle className="w-3 h-3" /> Policy Updates</h3>
+            <p className="text-xs text-[#9CA3AF]">We may update this Privacy Policy at any time. Changes will be posted on this page.</p>
+          </div>
+        </motion.div>
+
+      </motion.div>
+    </LegalLayout>
   );
 }
