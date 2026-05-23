@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 
 export function ContactUs() {
   const [formStatus, setFormStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,10 +26,14 @@ export function ContactUs() {
       });
       if (res.ok) {
         setFormStatus("success");
+        setErrorMessage("");
       } else {
+        const errData = await res.json().catch(() => ({}));
+        setErrorMessage(errData.message || errData.error || "Failed to send message. Please try again.");
         setFormStatus("error");
       }
-    } catch (err) {
+    } catch (err: any) {
+      setErrorMessage(err.message || "Network error occurred.");
       setFormStatus("error");
     }
   };
@@ -95,6 +100,11 @@ export function ContactUs() {
             
             {formStatus !== "success" && (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {formStatus === "error" && (
+                  <div className="bg-red-500/10 border border-red-500/50 rounded-xl p-4 mb-6">
+                    <p className="text-red-400 text-sm">{errorMessage}</p>
+                  </div>
+                )}
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-white/70 mb-1">Name</label>
                   <input
