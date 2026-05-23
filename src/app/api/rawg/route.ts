@@ -49,10 +49,15 @@ async function fetchRawgData(title: string) {
     rawgUsageCount++;
     if (detailRes.ok) {
        try {
-          return await detailRes.json();
+          const detailData = await detailRes.json();
+          detailData.release_date = detailData.released;
+          return detailData;
        } catch(e) {}
     }
-    return data.results[0];
+    
+    const baseData = data.results[0];
+    baseData.release_date = baseData.released;
+    return baseData;
   }
   
   return { not_found: true };

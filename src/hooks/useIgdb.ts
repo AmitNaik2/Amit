@@ -37,8 +37,18 @@ export function useIgdb(title: string) {
               const rawgRes = await fetch(`/api/rawg?title=${encodeURIComponent(title)}`);
               if (rawgRes.ok) {
                   const rawgJson = await rawgRes.json();
-                  if (rawgJson && !rawgJson.not_found && !rawgJson.error && isMounted) {
-                     setData(rawgJson);
+                  if (rawgJson && !rawgJson.not_found && !rawgJson.error) {
+                     if (isMounted) setData(rawgJson);
+                     return;
+                  }
+              }
+              
+              // Ultimate Fallback: Steam (Requires NO API Keys and has perfect release dates)
+              const steamRes = await fetch(`/api/steam?title=${encodeURIComponent(title)}`);
+              if (steamRes.ok) {
+                  const steamJson = await steamRes.json();
+                  if (steamJson && !steamJson.not_found && !steamJson.error && isMounted) {
+                      setData(steamJson);
                   }
               }
            } catch(e) {}

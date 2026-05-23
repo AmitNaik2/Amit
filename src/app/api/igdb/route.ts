@@ -55,7 +55,7 @@ async function fetchIgdbData(title: string) {
       "Authorization": `Bearer ${token}`,
       "Accept": "application/json",
     },
-    body: `search "${cleanTitle}"; fields name,rating,summary,cover.url,genres.name,platforms.name,url,involved_companies.company.name; limit 1;`,
+    body: `search "${cleanTitle}"; fields name,rating,summary,cover.url,genres.name,platforms.name,url,involved_companies.company.name,first_release_date; limit 1;`,
     next: { revalidate: 604800 } // Cache for 7 days on Vercel
   });
   
@@ -70,6 +70,10 @@ async function fetchIgdbData(title: string) {
     if (data[0].involved_companies) {
        data[0].developers = data[0].involved_companies.map((ic: any) => ({ name: ic.company?.name }));
        data[0].publishers = data[0].involved_companies.map((ic: any) => ({ name: ic.company?.name }));
+    }
+    if (data[0].first_release_date) {
+       const date = new Date(data[0].first_release_date * 1000);
+       data[0].release_date = date.toISOString().split('T')[0];
     }
     return data[0];
   } else {
