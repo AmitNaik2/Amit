@@ -1,5 +1,5 @@
 "use client";
-import { Gamepad2, Search, Bell, User, Shield, Crosshair } from "lucide-react";
+import { Gamepad2, Search, Bell, User, Shield, Crosshair, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { type GameDeal } from "../types";
@@ -26,6 +26,7 @@ export function TopNavbar({
   deals = [],
 }: TopNavbarProps) {
   const [onlineUsers, setOnlineUsers] = useState<number>(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Check if we have active deals for each platform
   const hasSteamDeals = deals.filter(deal => deal.platforms.includes("Steam")).length >= 3;
@@ -125,9 +126,34 @@ export function TopNavbar({
                  <User className="w-4 h-4" />
                </button>
             </div>
+            
+            {/* Mobile Menu Toggle */}
+            <button 
+              className="lg:hidden flex items-center justify-center w-9 h-9 text-white hover:text-[#06B6D4] transition-colors"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle mobile menu"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden bg-[#050816]/95 border-b border-[#06B6D4]/20 p-4 font-orbitron">
+          <div className="flex flex-col space-y-4">
+            <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-widest text-white hover:text-[#06B6D4]">HOME</Link>
+            <Link href="/free-games" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#8B5CF6]">FREE GAMES</Link>
+            <Link href="/reviews" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#EC4899]">GAME REVIEWS</Link>
+            <Link href="/guides" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-white">GAMING GUIDES</Link>
+            <Link href="/optimization" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#06B6D4]">PC OPTIMIZATION</Link>
+            <Link href="/news" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#8B5CF6]">NEWS</Link>
+            <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#EC4899]">ABOUT</Link>
+            <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-white">CONTACT</Link>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

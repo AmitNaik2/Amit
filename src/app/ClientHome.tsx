@@ -846,9 +846,19 @@ export default function App() {
           
           {/* Right Sidebar (Feeds) */}
           <aside className="xl:w-72 shrink-0 xl:sticky xl:top-24 space-y-6 mt-12 xl:mt-0 pt-8 xl:pt-0 border-t xl:border-t-0 border-white/10">
-            <LiveFeed deals={activeGamesDeals} />
+            <div id="free-games">
+              <LiveFeed deals={activeGamesDeals} />
+            </div>
             <UpcomingDrops deals={upcomingDeals} onViewAll={goUpcoming} />
-            <GamingNews />
+            <div id="news">
+              <GamingNews />
+            </div>
+            
+            {/* Placeholders for header links */}
+            <div id="reviews" className="hidden"></div>
+            <div id="guides" className="hidden"></div>
+            <div id="optimization" className="hidden"></div>
+            
             <div className="pt-4 border-t border-white/10 hidden xl:block">
               <InlineSubscribe />
             </div>
