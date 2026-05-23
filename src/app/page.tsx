@@ -79,7 +79,7 @@ export default async function Home() {
 
   return (
     <>
-      <Script
+      <script
         id="item-list-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}

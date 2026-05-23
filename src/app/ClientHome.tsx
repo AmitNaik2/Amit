@@ -157,7 +157,7 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
   const [upcomingDeals, setUpcomingDeals] = useState<any[]>(initialUpcomingGames);
   const [dlcDeals, setDlcDeals] = useState<GameDeal[]>([]);
   const [premiumDeals, setPremiumDeals] = useState<GameDeal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(initialActiveGames.length === 0);
   const [dlcLoading, setDlcLoading] = useState(false);
   const [premiumLoading, setPremiumLoading] = useState(false);
 
@@ -169,7 +169,7 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
 
   const fetchDeals = async (refresh = false) => {
     try {
-      if (!refresh) setLoading(true);
+      if (!refresh && deals.length === 0) setLoading(true);
       else setIsRefreshing(true);
       setError(null);
 
