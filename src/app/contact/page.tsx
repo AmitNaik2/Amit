@@ -5,6 +5,11 @@ import { ContactForm } from './ContactForm';
 export const metadata: Metadata = {
   title: 'Contact Us | GamesDealsHub',
   description: 'Get in touch with the GamesDealsHub team. Report a missing deal or send us feedback.',
+  openGraph: {
+    title: 'Contact GamesDealsHub',
+    description: 'Get in touch with the GamesDealsHub team. Report a missing deal or send us feedback.',
+    url: 'https://www.gamesdealshub.me/contact'
+  },
   alternates: { canonical: '/contact' }
 };
 

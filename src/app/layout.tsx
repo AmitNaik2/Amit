@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://gamedeals-next.vercel.app";
+const siteUrl = "https://www.gamesdealshub.me";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

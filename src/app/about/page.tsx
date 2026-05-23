@@ -4,6 +4,11 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'About Us | GamesDealsHub',
   description: 'Learn how GamesDealsHub tracks free PC game deals from Epic Games, Steam, and GOG — updated every day.',
+  openGraph: {
+    title: 'About GamesDealsHub | How We Track Free Games',
+    description: 'Learn how GamesDealsHub finds free deals and aggregates giveaways from across the web.',
+    url: 'https://www.gamesdealshub.me/about'
+  },
   alternates: { canonical: '/about' }
 };
 

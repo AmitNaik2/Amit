@@ -134,7 +134,12 @@ function InlineSubscribe() {
   );
 }
 
-export default function App() {
+interface ClientHomeProps {
+  initialActiveGames?: GameDeal[];
+  initialUpcomingGames?: any[];
+}
+
+export default function App({ initialActiveGames = [], initialUpcomingGames = [] }: ClientHomeProps) {
   const pathname = usePathname() || "";
   const router = useRouter();
 
@@ -148,8 +153,8 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState<"Games" | "DLC" | "Premium" | "Upcoming">("Games");
   
-  const [deals, setDeals] = useState<GameDeal[]>([]); // This will just be Free Games now
-  const [upcomingDeals, setUpcomingDeals] = useState<GameDeal[]>([]);
+  const [deals, setDeals] = useState<GameDeal[]>(initialActiveGames);
+  const [upcomingDeals, setUpcomingDeals] = useState<any[]>(initialUpcomingGames);
   const [dlcDeals, setDlcDeals] = useState<GameDeal[]>([]);
   const [premiumDeals, setPremiumDeals] = useState<GameDeal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -176,13 +181,33 @@ export default function App() {
       if (!resGames.ok) throw new Error("Failed to load active games");
       if (!resUpcoming.ok) throw new Error("Failed to load upcoming games");
 
-      const [games, upcoming] = await Promise.all([
-        resGames.json(),
-        resUpcoming.json()
-      ]);
-      
-      setDeals(games || []);
-      setUpcomingDeals(upcoming || []);
+      const gamesText = await resGames.text();
+      const upcomingText = await resUpcoming.text();
+
+      let gamesData, upcomingData;
+      try { gamesData = JSON.parse(gamesText); } catch { throw new Error("Invalid games JSON"); }
+      try { upcomingData = JSON.parse(upcomingText); } catch { throw new Error("Invalid upcoming JSON"); }
+
+      // Map gamesData exactly as before
+      const formattedDeals: GameDeal[] = gamesData.map((deal: any) => ({
+        id: `gp_${deal.id}`,
+        title: deal.title,
+        description: deal.description,
+        thumbnail: deal.thumbnail || deal.image,
+        open_giveaway_url: deal.open_giveaway_url,
+        gamerpower_url: deal.gamerpower_url,
+        published_date: deal.published_date,
+        type: deal.type,
+        platforms: deal.platforms,
+        users: deal.users,
+        status: deal.status,
+        worth: deal.worth,
+        end_date: deal.end_date,
+        instructions: deal.instructions
+      }));
+
+      setDeals(formattedDeals);
+      setUpcomingDeals(upcomingData || []);
       setLastRefreshed(new Date());
     } catch (err: any) {
       setError(err.message === 'Failed to fetch' ? 'Connection lost' : err.message);
