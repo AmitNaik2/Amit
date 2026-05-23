@@ -55,11 +55,11 @@ export function Admin({ deals }: AdminProps) {
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-    if (email === "admin@gamesdealshub.com" && password === "admin123") {
+    if (email === "amitnaik0023@gmail.com" && password === "Amit_Naik12") {
       setIsLoggedIn(true);
       setError("");
     } else {
-      setError("Invalid credentials. Try admin@gamesdealshub.com / admin123");
+      setError("Invalid credentials.");
     }
   };
 
