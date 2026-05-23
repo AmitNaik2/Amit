@@ -327,17 +327,31 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
            <div className="space-y-6 flex flex-col">
               
               {/* Overview */}
-              <div id="overview" className="bg-[#111A2D] p-6 lg:p-8 rounded-2xl border border-white/5 flex-grow scroll-mt-28">
+              <div id="overview" className="bg-[#111A2D] p-4 lg:p-6 rounded-xl border border-white/5 flex-grow scroll-mt-28">
                  <h2 className="flex items-center gap-2 font-bold mb-6 text-xl"><Gamepad2 className="w-5 h-5 text-[#8B5CF6]" /> Overview</h2>
                  <p className="text-sm text-slate-300 leading-relaxed mb-8 whitespace-pre-wrap">
                     {deal.description}
                  </p>
-                 <div className="grid grid-cols-2 gap-3 text-xs font-bold text-slate-300">
-                    <div className="flex items-center gap-2 bg-[#1A2235] px-4 py-2.5 rounded-lg border border-white/5"><span className="text-[#8B5CF6]">✛</span> Online Multiplayer</div>
-                    <div className="flex items-center gap-2 bg-[#1A2235] px-4 py-2.5 rounded-lg border border-white/5"><span className="text-[#8B5CF6]">✛</span> Great Physics</div>
-                    <div className="flex items-center gap-2 bg-[#1A2235] px-4 py-2.5 rounded-lg border border-white/5"><span className="text-[#8B5CF6]">✛</span> Easy to Play</div>
-                    <div className="flex items-center gap-2 bg-[#1A2235] px-4 py-2.5 rounded-lg border border-white/5"><span className="text-[#8B5CF6]">✛</span> Competitive Races</div>
-                    <div className="flex items-center gap-2 bg-[#1A2235] px-4 py-2.5 rounded-lg border border-white/5"><span className="text-[#8B5CF6]">✛</span> Free to Play</div>
+                 
+                 <div className="mt-6 bg-[#070A11]/50 p-5 rounded-xl border border-white/5">
+                   <h3 className="font-bold mb-4 text-base text-white">Why Play {deal.title} ({deal.platforms.split(',')[0]}) Giveaway?</h3>
+                   <div className="space-y-3 text-sm text-slate-300 font-medium">
+                      <div className="flex items-center gap-3"><span className="text-xl">🚀</span> Lightweight game – Runs on low-end PCs</div>
+                      <div className="flex items-center gap-3"><span className="text-xl">⚡</span> Fast matches – Perfect for short gaming sessions</div>
+                      {tags.some(t => t.toLowerCase().includes('multiplayer') || t.toLowerCase().includes('co-op')) ? (
+                        <div className="flex items-center gap-3"><span className="text-xl">😂</span> Hilarious moments – Fun with friends</div>
+                      ) : (
+                        <div className="flex items-center gap-3"><span className="text-xl">📖</span> Engaging single-player experience</div>
+                      )}
+                      {tags.some(t => t.toLowerCase().includes('action') || t.toLowerCase().includes('shooter')) ? (
+                        <div className="flex items-center gap-3"><span className="text-xl">💥</span> Action-packed gameplay</div>
+                      ) : tags.some(t => t.toLowerCase().includes('puzzle') || t.toLowerCase().includes('strategy')) ? (
+                        <div className="flex items-center gap-3"><span className="text-xl">🧠</span> Challenging puzzles & strategy</div>
+                      ) : (
+                        <div className="flex items-center gap-3"><span className="text-xl">🔁</span> Regular updates & new levels</div>
+                      )}
+                      <div className="flex items-center gap-3"><span className="text-xl">🎁</span> Free to keep forever on {deal.platforms.split(',')[0]}</div>
+                   </div>
                  </div>
               </div>
               
@@ -410,7 +424,7 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
            <div className="space-y-6 flex flex-col">
               
               {/* Screenshots & Trailers */}
-              <div id="screens" className="bg-[#111A2D] p-6 lg:p-8 rounded-2xl border border-white/5 scroll-mt-28">
+              <div id="screens" className="bg-[#111A2D] p-4 lg:p-6 rounded-xl border border-white/5 scroll-mt-28">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="flex items-center gap-2 font-bold text-xl"><ImageIcon className="w-5 h-5 text-[#8B5CF6]" /> Media Gallery</h2>
                   {mediaItems.length > 0 && (
