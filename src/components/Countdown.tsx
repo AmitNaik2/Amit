@@ -4,6 +4,8 @@ import { Clock } from 'lucide-react';
 
 interface CountdownProps {
   endDate: string;
+  className?: string;
+  styleType?: string;
 }
 
 /** Format a date string to a deterministic UTC string, safe for SSR + client. */

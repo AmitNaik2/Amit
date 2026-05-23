@@ -1,12 +1,10 @@
-"use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
+import Link from "next/link";
 import { type GameDeal } from "../types";
-import { BadgeCheck, ArrowLeft, ExternalLink, Gamepad2, Users, Star } from "lucide-react";
+import { ArrowLeft, Gamepad2, Info, LayoutTemplate, Monitor, Image as ImageIcon, Video, Heart, Share2, Check } from "lucide-react";
 import { generateUniqueSummary, generateTags } from "../lib/text-utils";
 import { Countdown } from "./Countdown";
-import { getDealRarity } from "../lib/deal-utils";
 import { useIgdb } from "../hooks/useIgdb";
 
 import { cn } from "../lib/utils";
@@ -15,6 +13,7 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
   const { id } = useParams();
   const router = useRouter();
   const [deal, setDeal] = useState<GameDeal | null>(null);
+  const [activeReqTab, setActiveReqTab] = useState<"min" | "rec">("min");
 
   useEffect(() => {
     if (deals.length > 0) {
@@ -27,9 +26,9 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
 
   if (!deal && !isLoading && deals.length > 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <h2 className="text-2xl font-bold font-serif mb-4">Deal Not Found</h2>
-        <button onClick={() => router.push("/")} className="text-[#7C3AED] hover:underline">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center text-white">
+        <h2 className="text-2xl font-bold mb-4">Deal Not Found</h2>
+        <button onClick={() => router.push("/")} className="text-[#8B5CF6] hover:underline">
           Return to Home
         </button>
       </div>
@@ -39,202 +38,360 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
   if (!deal) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="w-12 h-12 border-t-2 border-[#7C3AED] rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-t-2 border-[#8B5CF6] rounded-full animate-spin"></div>
       </div>
     );
   }
 
   const tags = generateTags(deal.title, deal.platforms, deal.type, deal.description);
   const rewrittenSummary = generateUniqueSummary(deal.title, deal.description, deal.type, deal.platforms);
+  
+  // Custom styled countdown component for the header
+  const renderCountdown = () => {
+     if (deal.end_date === "N/A") return <div className="text-sm font-bold text-slate-300">Unknown</div>;
+     
+     // Very simple static fallback for UI structure. We use the existing Countdown class for logic.
+     return (
+       <div className="flex gap-2">
+          <Countdown endDate={deal.end_date} className="" styleType="boxes" />
+       </div>
+     );
+  }
+
+  const isSteam = deal.platforms.toLowerCase().includes("steam");
+
+  let developerName = "Unknown Studio";
+  let publisherName = "Unknown Studio";
+
+  if (gameInfo && !gameInfo.not_found && !gameInfo.error) {
+    if (gameInfo.involved_companies && Array.isArray(gameInfo.involved_companies) && gameInfo.involved_companies.length > 0) {
+      const devs = gameInfo.involved_companies.filter((c: any) => c.developer && c.company).map((c: any) => c.company.name);
+      if (devs.length > 0) developerName = devs.join(', ');
+      
+      const pubs = gameInfo.involved_companies.filter((c: any) => c.publisher && c.company).map((c: any) => c.company.name);
+      if (pubs.length > 0) publisherName = pubs.join(', ');
+    }
+    
+    // Explicitly check gameInfo.developers if devs/pubs are still unknown because maybe RAWG provided them
+    if (developerName === "Unknown Studio" || publisherName === "Unknown Studio") {
+      if (gameInfo.developers && Array.isArray(gameInfo.developers)) {
+        const devs = gameInfo.developers.map((d: any) => d.name);
+        if (devs.length > 0) developerName = devs.join(', ');
+      }
+      if (gameInfo.publishers && Array.isArray(gameInfo.publishers)) {
+         const pubs = gameInfo.publishers.map((p: any) => p.name);
+         if (pubs.length > 0) publisherName = pubs.join(', ');
+      }
+    }
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl animate-in fade-in duration-500">
-      
+    <div className="min-h-screen bg-[#070A11] text-white font-sans p-4 lg:p-8 animate-in fade-in duration-500">
 
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-white/50 hover:text-white mb-6 uppercase tracking-widest text-[10px] font-bold transition-colors">
-        <ArrowLeft className="w-4 h-4" /> Back to Deals
-      </button>
-
-      <div className="grid md:grid-cols-2 gap-8 lg:gap-12 bg-black/40 border border-white/10 rounded-3xl p-6 lg:p-8 backdrop-blur-xl">
-        <div className="rounded-2xl overflow-hidden relative border border-white/10 shadow-[0_0_40px_rgba(124,58,237,0.15)] group aspect-video">
-          <Image src={deal.image || deal.thumbnail} alt={deal.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="w-full object-cover group-hover:scale-105 transition-transform duration-700" />
-          <div className="absolute top-4 right-4 bg-green-500 text-black px-3 py-1 rounded text-xs font-bold uppercase tracking-widest flex items-center gap-1 shadow-lg z-10">
-            <BadgeCheck className="w-3 h-3" /> Verified Free
-          </div>
+      <div className="max-w-[1200px] mx-auto">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-6">
+          <span>&gt;</span>
+          <Link href="/free-steam-games" className="hover:text-white">Free Games</Link>
+          <span>&gt;</span>
+          <span className="text-white">{deal.title} ({deal.platforms}) Giveaway</span>
         </div>
 
-        <div className="flex flex-col justify-center">
-          <div className="flex flex-wrap gap-2 mb-4">
-            {tags.map((tag, idx) => (
-              <span key={idx} className="bg-[#7C3AED]/20 px-2.5 py-1 rounded border border-[#7C3AED]/30 text-[10px] uppercase font-mono tracking-widest text-[#7C3AED]">
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          <h1 className="text-4xl lg:text-5xl font-serif italic font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
-            {deal.title}
-          </h1>
-
-          <div className="flex items-center gap-4 mb-6 pb-6 border-b border-white/10">
-            <div className="flex flex-col">
-              <span className="text-white/40 text-[10px] uppercase tracking-widest font-bold">Original Value</span>
-              <span className={cn("font-mono text-xl", deal.type === 'Game Info' ? "text-white/40" : "text-rose-500 line-through")}>{deal.worth !== "N/A" ? deal.worth : (deal.type === 'Game Info' ? "N/A" : "$0.00")}</span>
+        {/* Header Section */}
+        <div className="grid lg:grid-cols-[400px_1fr] gap-8 mb-6">
+          {/* Cover Image */}
+          <div className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-900 shadow-2xl">
+            <img src={deal.thumbnail} alt={deal.title} className="w-full h-full object-cover" />
+            <div className="absolute top-4 right-4 bg-gradient-to-r from-emerald-400 to-green-500 text-[#070A11] px-3 py-1 text-xs font-bold rounded shadow-lg shadow-green-500/20 uppercase tracking-wider">
+              Free to Keep
             </div>
-            <div className="w-px h-8 bg-white/10 opacity-50"></div>
-            <div className="flex flex-col">
-               <span className="text-white/40 text-[10px] uppercase tracking-widest font-bold">Current Price</span>
-               <span className={cn("font-mono text-xl md:text-2xl font-bold px-2 rounded", deal.type === 'Game Info' ? "text-[#7C3AED] bg-[#7C3AED]/10" : "text-green-400 bg-green-400/10")}>{deal.type === 'Game Info' ? "INFO" : (deal.salePrice ? `$${deal.salePrice}` : "FREE")}</span>
+            <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur p-2.5 rounded-xl border border-white/10">
+              {isSteam ? (
+                 <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                   <path d="M12 0C5.373 0 0 5.373 0 12c0 6.628 5.373 12 12 12s12-5.372 12-12C24 5.373 18.627 0 12 0zm5.836 17.653c-.347.112-.66.195-.917.25-.97.195-1.57-.09-1.57-.09l-1.956-5.832c-.08-.028-.158-.06-.238-.093l-3.326 4.908c-.76.7-1.782 1.096-2.88 1.053-.946-.032-1.848-.394-2.553-1.018-.707-.626-1.12-1.488-1.168-2.434-.048-.946.294-1.87 1.016-2.584.72-.716 1.745-1.077 2.827-1.012 1.483.088 2.628 1.002 3.123 2.155l3.208-4.73c-.02-.1-.03-.205-.03-.314 0-1.876 1.528-3.4 3.4-3.4 1.875 0 3.4 1.524 3.4 3.4 0 1.875-1.525 3.4-3.4 3.4-.648 0-1.25-.18-1.76-.496l-1.83 5.39c.273.29.624.5.992.61.944.256 1.93.076 2.65-.48l1.043 2.946zM15.4 7.6c-1.106 0-2 .894-2 2s.894 2 2 2 2-.894 2-2-.894-2-2-2zM5.59 13.916c-.463-.03-.902.115-1.22.428-.318.315-.465.738-.445 1.162.02.425.21.815.52 1.093.31.278.718.44 1.137.452.42.012.83-.12 1.14-.383.31-.263.483-.642.483-1.053 0-.007 0-.014-.002-.02L5.808 14.18c-.07-.068-.14-.136-.217-.264z"/>
+                 </svg>
+              ) : (
+                <Gamepad2 className="w-8 h-8 text-white" />
+              )}
             </div>
           </div>
-
-          <p className="text-white/80 text-sm md:text-base leading-relaxed mb-6">
-            {rewrittenSummary}
-          </p>
-
-          <div className="bg-[#7C3AED]/10 border border-[#7C3AED]/20 rounded-xl p-4 mb-8">
-            <h3 className="text-sm font-bold text-white mb-2 tracking-wide">{deal.type === 'Game Info' ? `About ${deal.title}` : `Why You Should Play ${deal.title}`}</h3>
-            <p className="text-white/70 text-sm leading-relaxed">
-              {deal.type === 'Game Info' 
-                ? `Search result across multiple platforms. Click below to view available stores.` 
-                : `If you usually miss out on expensive games, ${deal.title} is a fantastic addition to your library right now. By claiming this deal, you are instantly saving ${deal.worth !== "N/A" ? deal.worth : "money"} and securing a top-rated title. ${deal.salePrice ? "Take advantage of this discount today." : "The free format makes it a great choice to pick up today."}`}
-            </p>
+          
+          {/* Info Header */}
+          <div className="flex flex-col justify-center">
+            <div className="flex gap-2 mb-3">
+              <span className="bg-[#4F46E5] text-white px-2.5 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider">Free Game</span>
+              <span className="bg-[#4F46E5]/20 text-[#8B5CF6] border border-[#8B5CF6]/30 px-2.5 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider">Giveaway</span>
+            </div>
+            <h1 className="text-3xl lg:text-4xl font-bold mb-6">{deal.title} ({deal.platforms.split(',')[0]}) Giveaway</h1>
+            
+            {/* Prices */}
+            <div className="grid grid-cols-3 gap-6 mb-8 max-w-md">
+              <div>
+                <div className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest font-bold">Original Price</div>
+                <div className="text-2xl text-rose-500 line-through font-bold">{deal.worth !== "N/A" ? deal.worth : "$19.99"}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest font-bold">Current Price</div>
+                <div className="text-2xl text-green-400 font-bold">FREE</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest font-bold">Discount</div>
+                <div className="text-2xl text-green-400 font-bold">100% OFF</div>
+              </div>
+            </div>
+            
+            {/* Claim Text */}
+            <div className="bg-[#111A2D] p-5 rounded-xl border border-white/5 mb-6 text-sm text-slate-300 leading-relaxed font-medium">
+              Claim your free copy of {deal.title} on {deal.platforms.split(',')[0]}.<br /><br />
+              Giveaway available now. Add it to your library forever and play with your friends online. Perfect for quick, fun sessions!
+            </div>
+            
+            {/* Offer Ends In */}
+            <div>
+               <div className="text-sm font-bold mb-3 text-slate-300">Offer ends in:</div>
+               {renderCountdown()}
+            </div>
           </div>
-
-          <div className="flex flex-col gap-3">
-             <div className="flex items-center gap-2 text-white/50 mb-1">
-               <span className="text-xs font-bold tracking-widest uppercase">Compare Stores</span>
+        </div>
+        
+        {/* Buttons Bar */}
+        <div className="flex flex-wrap items-center gap-4 bg-[#111A2D] p-4 lg:p-6 rounded-2xl border border-white/5 mb-8 overflow-hidden relative">
+           <div className="absolute top-0 left-0 w-1 h-full bg-[#4F46E5]"></div>
+           <div className="px-2 pr-8 mr-auto border-r border-white/10 hidden md:block">
+             <div className="text-slate-400 text-[10px] uppercase tracking-widest font-bold mb-1">Platform</div>
+             <div className="font-bold text-lg leading-none">PC, {deal.platforms.split(',')[0]}</div>
+           </div>
+           <a href={deal.open_giveaway_url} target="_blank" rel="noreferrer" className="flex-1 md:flex-none text-center bg-[#5B21B6] hover:bg-[#4C1D95] font-bold py-4 px-12 rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(91,33,182,0.4)] tracking-wide flex items-center justify-center gap-2">
+             {isSteam ? (
+                 <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12c0 6.628 5.373 12 12 12s12-5.372 12-12C24 5.373 18.627 0 12 0zm5.836 17.653c-.347.112-.66.195-.917.25-.97.195-1.57-.09-1.57-.09l-1.956-5.832c-.08-.028-.158-.06-.238-.093l-3.326 4.908c-.76.7-1.782 1.096-2.88 1.053-.946-.032-1.848-.394-2.553-1.018-.707-.626-1.12-1.488-1.168-2.434-.048-.946.294-1.87 1.016-2.584.72-.716 1.745-1.077 2.827-1.012 1.483.088 2.628 1.002 3.123 2.155l3.208-4.73c-.02-.1-.03-.205-.03-.314 0-1.876 1.528-3.4 3.4-3.4 1.875 0 3.4 1.524 3.4 3.4 0 1.875-1.525 3.4-3.4 3.4-.648 0-1.25-.18-1.76-.496l-1.83 5.39c.273.29.624.5.992.61.944.256 1.93.076 2.65-.48l1.043 2.946zM15.4 7.6c-1.106 0-2 .894-2 2s.894 2 2 2 2-.894 2-2-.894-2-2-2zM5.59 13.916c-.463-.03-.902.115-1.22.428-.318.315-.465.738-.445 1.162.02.425.21.815.52 1.093.31.278.718.44 1.137.452.42.012.83-.12 1.14-.383.31-.263.483-.642.483-1.053 0-.007 0-.014-.002-.02L5.808 14.18c-.07-.068-.14-.136-.217-.264z"></path></svg>
+             ) : <Gamepad2 className="w-5 h-5" />}
+             CLAIM ON {deal.platforms.split(',')[0].toUpperCase()}
+           </a>
+           <button className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-[#1E293B]/50 hover:bg-[#1E293B] border border-white/10 text-slate-300 font-bold py-4 px-8 rounded-xl transition-colors tracking-wide">
+             <Heart className="w-5 h-5" /> ADD TO WATCHLIST
+           </button>
+        </div>
+        
+        {/* Tabs Bar */}
+        <div className="flex gap-4 overflow-x-auto border-b border-white/10 mb-8 pb-px no-scrollbar">
+          {[
+            { id: "overview", label: "OVERVIEW", icon: LayoutTemplate, active: true },
+            { id: "sysreq", label: "SYSTEM REQUIREMENTS", icon: Monitor, active: false },
+            { id: "screens", label: "SCREENSHOTS", icon: ImageIcon, active: false },
+            { id: "gameplay", label: "GAMEPLAY", icon: Video, active: false },
+            { id: "info", label: "INFO", icon: Info, active: false }
+          ].map((tab) => (
+             <button key={tab.id} className={cn("flex items-center gap-2 pb-4 px-2 text-[11px] font-bold tracking-[0.15em] border-b-2 hover:text-white transition-colors whitespace-nowrap", tab.active ? "text-[#8B5CF6] border-[#8B5CF6]" : "text-slate-400 border-transparent")}>
+               <tab.icon className="w-4 h-4" /> {tab.label}
+             </button>
+          ))}
+        </div>
+        
+        {/* Grid Content */}
+        <div className="grid lg:grid-cols-[1fr_1fr] gap-6">
+           {/* Left Col */}
+           <div className="space-y-6 flex flex-col">
+              
+              {/* Overview */}
+              <div className="bg-[#111A2D] p-6 lg:p-8 rounded-2xl border border-white/5 flex-grow">
+                 <h2 className="flex items-center gap-2 font-bold mb-6 text-xl"><Gamepad2 className="w-5 h-5 text-[#8B5CF6]" /> Overview</h2>
+                 <p className="text-sm text-slate-300 leading-relaxed mb-8 whitespace-pre-wrap">
+                    {deal.description}
+                 </p>
+                 <div className="grid grid-cols-2 gap-3 text-xs font-bold text-slate-300">
+                    <div className="flex items-center gap-2 bg-[#1A2235] px-4 py-2.5 rounded-lg border border-white/5"><span className="text-[#8B5CF6]">✛</span> Online Multiplayer</div>
+                    <div className="flex items-center gap-2 bg-[#1A2235] px-4 py-2.5 rounded-lg border border-white/5"><span className="text-[#8B5CF6]">✛</span> Great Physics</div>
+                    <div className="flex items-center gap-2 bg-[#1A2235] px-4 py-2.5 rounded-lg border border-white/5"><span className="text-[#8B5CF6]">✛</span> Easy to Play</div>
+                    <div className="flex items-center gap-2 bg-[#1A2235] px-4 py-2.5 rounded-lg border border-white/5"><span className="text-[#8B5CF6]">✛</span> Competitive Races</div>
+                    <div className="flex items-center gap-2 bg-[#1A2235] px-4 py-2.5 rounded-lg border border-white/5"><span className="text-[#8B5CF6]">✛</span> Free to Play</div>
+                 </div>
+              </div>
+              
+              {/* About This Game */}
+              <div className="bg-[#111A2D] p-6 lg:p-8 rounded-2xl border border-white/5">
+                 <h2 className="font-bold mb-4 text-xl">About This Game</h2>
+                 <p className="text-sm text-slate-300 mb-8">
+                   Dive into {deal.title} and experience an amazing adventure. Each round is different, and the fun never ends!
+                 </p>
+                 <div className="grid grid-cols-[140px_1fr] gap-y-4 text-sm">
+                    <div className="text-slate-400 font-medium">DEVELOPER</div><div className="text-slate-200">{developerName}</div>
+                    <div className="text-slate-400 font-medium">PUBLISHER</div><div className="text-slate-200">{publisherName}</div>
+                    <div className="text-slate-400 font-medium">RELEASE DATE</div><div className="text-slate-200">{gameInfo?.release_date || "Recent"}</div>
+                    <div className="text-slate-400 font-medium">GENRE</div><div className="text-slate-200">{tags.length > 0 ? tags.slice(0,4).join(', ') : "Action, Casual, Indie"}</div>
+                    <div className="text-slate-400 font-medium">MODE</div><div className="text-slate-200">Multiplayer / Singleplayer</div>
+                    <div className="text-slate-400 font-medium">COMPATIBLE WITH</div><div className="text-slate-200">Windows (PC, {deal.platforms.split(',')[0]})</div>
+                 </div>
+              </div>
+              
+              {/* System Requirements */}
+              <div className="bg-[#111A2D] p-6 lg:p-8 rounded-2xl border border-white/5">
+                <h2 className="flex items-center gap-2 font-bold mb-6 text-xl"><Monitor className="w-5 h-5 text-[#8B5CF6]" /> System Requirements</h2>
+                <div className="flex gap-2 mb-6 border-b border-white/10">
+                  <button onClick={() => setActiveReqTab("min")} className={cn("px-5 py-2 text-sm font-bold transition-colors", activeReqTab === "min" ? "bg-[#1E293B] rounded-t-lg text-white border-b-2 border-[#8B5CF6]" : "text-slate-400 hover:text-white")}>Minimum</button>
+                  <button onClick={() => setActiveReqTab("rec")} className={cn("px-5 py-2 text-sm font-bold transition-colors", activeReqTab === "rec" ? "bg-[#1E293B] rounded-t-lg text-white border-b-2 border-[#8B5CF6]" : "text-slate-400 hover:text-white")}>Recommended</button>
+                </div>
+                {activeReqTab === "min" ? (
+                <div className="grid grid-cols-[120px_1fr] gap-y-4 text-sm text-slate-300 mb-6 font-medium">
+                   <div className="text-slate-400">OS</div><div>Windows 7/8/10/11 (64-bit)</div>
+                   <div className="text-slate-400">Processor</div><div>Intel Core i3 / AMD Ryzen 3</div>
+                   <div className="text-slate-400">Memory</div><div>4 GB RAM</div>
+                   <div className="text-slate-400">Graphics</div><div>Intel HD Graphics or Dedicated GPU</div>
+                   <div className="text-slate-400">Storage</div><div>4 GB available space</div>
+                   <div className="text-slate-400">DirectX</div><div>Version 11</div>
+                </div>
+                ) : (
+                <div className="grid grid-cols-[120px_1fr] gap-y-4 text-sm text-slate-300 mb-6 font-medium">
+                   <div className="text-slate-400">OS</div><div>Windows 10/11 (64-bit)</div>
+                   <div className="text-slate-400">Processor</div><div>Intel Core i5 / AMD Ryzen 5</div>
+                   <div className="text-slate-400">Memory</div><div>8 GB RAM or more</div>
+                   <div className="text-slate-400">Graphics</div><div>NVIDIA GeForce GTX 1060 / AMD Radeon RX 580</div>
+                   <div className="text-slate-400">Storage</div><div>4 GB available space (SSD Recommended)</div>
+                   <div className="text-slate-400">DirectX</div><div>Version 11 or newer</div>
+                </div>
+                )}
+                <div className="text-center p-3 bg-white/5 rounded text-xs text-slate-400">
+                  {deal.title} is optimized for low-end PCs and laptops.
+                </div>
+              </div>
+              
+              {/* How to Claim */}
+              <div className="bg-[#111A2D] p-6 lg:p-8 rounded-2xl border border-white/5 mt-auto">
+                <h2 className="font-bold mb-6 text-xl">How to Claim</h2>
+                <div className="space-y-4 text-sm text-slate-200 font-medium">
+                  <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl"><div className="w-7 h-7 rounded-full bg-[#8B5CF6] flex items-center justify-center shrink-0 font-bold">1</div>Click on "Claim on {deal.platforms.split(',')[0]}" button above</div>
+                  <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl"><div className="w-7 h-7 rounded-full bg-[#8B5CF6] flex items-center justify-center shrink-0 font-bold">2</div>You will be redirected to Store</div>
+                  <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl"><div className="w-7 h-7 rounded-full bg-[#8B5CF6] flex items-center justify-center shrink-0 font-bold">3</div>Click "Add to Account"</div>
+                  <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl"><div className="w-7 h-7 rounded-full bg-[#8B5CF6] flex items-center justify-center shrink-0 font-bold">4</div>The game is now in your Library - Forever!</div>
+                </div>
+                {deal.end_date !== "N/A" && (
+                  <div className="mt-6 p-4 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-xl text-center font-bold text-sm flex items-center justify-center gap-2">
+                    Hurry up! Offer ends soon. 🎁
+                  </div>
+                )}
+              </div>
+              
+           </div>
+           
+           {/* Right Col */}
+           <div className="space-y-6 flex flex-col">
+             
+             {/* Screenshots */}
+             <div className="bg-[#111A2D] p-6 lg:p-8 rounded-2xl border border-white/5">
+               <div className="flex justify-between items-center mb-6">
+                 <h2 className="flex items-center gap-2 font-bold text-xl"><ImageIcon className="w-5 h-5 text-[#8B5CF6]" /> Screenshots</h2>
+                 <button className="text-sm text-slate-400 hover:text-white font-medium group">View all <span className="group-hover:translate-x-1 inline-block transition-transform">&gt;</span></button>
+               </div>
+               
+               {/* Main Image */}
+               <div className="aspect-video bg-slate-900 rounded-xl mb-3 relative overflow-hidden group border border-white/5">
+                 <img src={deal.image || deal.thumbnail} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                 <div className="absolute inset-0 flex items-center justify-center">
+                   <div className="w-14 h-14 rounded-full border-[3px] border-white flex items-center justify-center bg-black/50 hover:bg-black/70 transition-colors cursor-pointer hover:scale-110">
+                     <div className="ml-1 w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-white border-b-[8px] border-b-transparent"></div>
+                   </div>
+                 </div>
+               </div>
+               
+               {/* Thumbs */}
+               <div className="grid grid-cols-4 gap-3">
+                 <div className="aspect-video bg-slate-800 rounded-lg overflow-hidden border border-[#8B5CF6] ring-2 ring-[#8B5CF6]/20 relative">
+                   <img src={deal.thumbnail} className="w-full h-full object-cover" />
+                 </div>
+                 <div className="aspect-video bg-slate-800 rounded-lg overflow-hidden border border-white/5 hover:border-white/20 transition-colors cursor-pointer opacity-70 hover:opacity-100 relative items-center justify-center flex text-slate-500">
+                    <ImageIcon className="w-6 h-6" />
+                 </div>
+                 <div className="aspect-video bg-slate-800 rounded-lg overflow-hidden border border-white/5 hover:border-white/20 transition-colors cursor-pointer opacity-70 hover:opacity-100 relative items-center justify-center flex text-slate-500">
+                    <ImageIcon className="w-6 h-6" />
+                 </div>
+                 <div className="aspect-video bg-slate-800 rounded-lg overflow-hidden border border-white/5 hover:border-white/20 transition-colors cursor-pointer opacity-70 hover:opacity-100 relative items-center justify-center flex text-slate-500">
+                    <ImageIcon className="w-6 h-6" />
+                 </div>
+               </div>
              </div>
-             {deals
-                .filter(d => d.title.toLowerCase() === deal.title.toLowerCase())
-                .sort((a, b) => {
-                   if (a.type === 'Game Info') return 1;
-                   if (b.type === 'Game Info') return -1;
-                   const priceA = parseFloat(a.salePrice || "0") || 0;
-                   const priceB = parseFloat(b.salePrice || "0") || 0;
-                   return priceA - priceB;
-                })
-                .reduce((acc, curr) => {
-                   // Remove complete duplicates if store and price matches
-                   if (!acc.find(d => d.platforms === curr.platforms && d.salePrice === curr.salePrice)) {
-                      acc.push(curr);
-                   }
-                   return acc;
-                }, [] as GameDeal[])
-                .map((relatedDeal, idx) => {
-                   const isBestResult = idx === 0 && relatedDeal.type !== 'Game Info';
-                   return (
-                   <div 
-                     key={relatedDeal.id}
-                     className={cn(
-                       "flex items-center justify-between p-4 rounded-xl border transition-colors",
-                       isBestResult 
-                         ? "bg-blue-950/20 border-blue-600/50" 
-                         : "bg-black/40 border-white/5 hover:border-white/10"
-                     )}
-                   >
-                     <div className="flex flex-col items-start gap-1">
-                       <span className="font-bold text-base text-white">{relatedDeal.platforms}</span>
-                       {isBestResult && (
-                         <span className="text-[10px] uppercase tracking-widest font-bold bg-blue-600 text-white px-2 py-0.5 rounded">
-                           Best Deal
-                         </span>
-                       )}
-                     </div>
-                     
-                     <div className="flex items-center gap-4">
-                       <div className="flex flex-col items-end justify-center">
-                         {relatedDeal.normalPrice && relatedDeal.normalPrice !== "N/A" && relatedDeal.salePrice !== relatedDeal.normalPrice && (
-                           <span className="text-white/40 text-[11px] line-through leading-none mb-1 font-mono">
-                             ${relatedDeal.normalPrice}
-                           </span>
-                         )}
-                         {relatedDeal.type === 'Game Info' ? (
-                            <span className="font-bold text-[#7C3AED] text-lg leading-none font-mono">INFO</span>
-                         ) : (
-                            <span className={cn(
-                              "font-bold text-lg leading-none font-mono", 
-                              isBestResult ? "text-blue-500" : "text-green-400"
-                            )}>
-                              {relatedDeal.salePrice === "0.00" || !relatedDeal.salePrice ? "FREE" : `$${relatedDeal.salePrice}`}
-                            </span>
-                         )}
-                       </div>
-                       <a 
-                         href={relatedDeal.open_giveaway_url}
-                         target="_blank"
-                         rel="noopener noreferrer nofollow sponsored"
-                         className={cn(
-                           "flex items-center justify-center w-10 h-10 rounded-xl transition-all shadow-sm",
-                           isBestResult 
-                             ? "bg-blue-600 text-white hover:bg-blue-500 shadow-blue-600/20" 
-                             : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-                         )}
-                       >
-                         <ExternalLink className="w-5 h-5" />
-                       </a>
-                     </div>
+             
+             {/* Why Play */}
+             <div className="bg-[#111A2D] p-6 lg:p-8 rounded-2xl border border-white/5 relative overflow-hidden flex-grow flex flex-col justify-center">
+               <h2 className="font-bold mb-6 relative z-10 text-xl">Why Play {deal.title}?</h2>
+               <div className="space-y-5 text-sm text-slate-300 w-3/4 relative z-10">
+                 <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-full bg-[#1E293B] flex items-center justify-center text-[#8B5CF6] text-xl shrink-0">🚀</div>
+                   <div><strong className="text-white">Lightweight game</strong> &ndash; Runs on low-end PCs</div>
+                 </div>
+                 <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-full bg-[#1E293B] flex items-center justify-center text-[#8B5CF6] text-xl shrink-0">⚡</div>
+                   <div><strong className="text-white">Fast matches</strong> &ndash; Perfect for short gaming sessions</div>
+                 </div>
+                 <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-full bg-[#1E293B] flex items-center justify-center text-[#8B5CF6] text-xl shrink-0">😂</div>
+                   <div><strong className="text-white">Hilarious moments</strong> &ndash; Fun with friends</div>
+                 </div>
+                 <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-full bg-[#1E293B] flex items-center justify-center text-[#8B5CF6] text-xl shrink-0">🔁</div>
+                   <div><strong className="text-white">Regular updates</strong> &amp; new levels</div>
+                 </div>
+                 <div className="flex items-center gap-3 bg-[#1A2235] p-2 rounded-lg -ml-2">
+                   <div className="w-8 h-8 flex items-center justify-center text-blue-400 text-xl shrink-0">🎁</div>
+                   <div><strong className="text-white">Free to keep forever</strong> on {deal.platforms}</div>
+                 </div>
+               </div>
+               
+               {/* Decorative Graphic Right Side - a large gamepad icon replacing the bunny */}
+               <div className="absolute -bottom-10 -right-10 w-64 h-64 opacity-5 z-0">
+                 <Gamepad2 className="w-full h-full text-white" />
+               </div>
+             </div>
+             
+             {/* Key Features */}
+             <div className="bg-[#111A2D] p-6 lg:p-8 rounded-2xl border border-white/5">
+               <h2 className="flex items-center gap-2 font-bold mb-6 text-xl"><Monitor className="w-5 h-5 text-[#8B5CF6]" /> Key Features</h2>
+               <ul className="space-y-4 text-sm text-slate-300 font-medium">
+                 <li className="flex items-center gap-3"><div className="bg-[#8B5CF6]/20 p-1 rounded-full"><Check className="w-4 h-4 text-[#8B5CF6]" /></div> Physics-based multiplayer platformer</li>
+                 <li className="flex items-center gap-3"><div className="bg-[#8B5CF6]/20 p-1 rounded-full"><Check className="w-4 h-4 text-[#8B5CF6]" /></div> Many challenging levels &amp; maps</li>
+                 <li className="flex items-center gap-3"><div className="bg-[#8B5CF6]/20 p-1 rounded-full"><Check className="w-4 h-4 text-[#8B5CF6]" /></div> Cross-platform matchmaking</li>
+                 <li className="flex items-center gap-3"><div className="bg-[#8B5CF6]/20 p-1 rounded-full"><Check className="w-4 h-4 text-[#8B5CF6]" /></div> Customize your character</li>
+                 <li className="flex items-center gap-3"><div className="bg-[#8B5CF6]/20 p-1 rounded-full"><Check className="w-4 h-4 text-[#8B5CF6]" /></div> Leaderboards &amp; achievements</li>
+               </ul>
+             </div>
+             
+             {/* Game Info & Rating Block */}
+             <div className="grid md:grid-cols-2 gap-6 mt-auto">
+               
+               {/* Game Info */}
+               <div className="bg-[#111A2D] p-6 rounded-2xl border border-white/5">
+                 <h2 className="flex items-center gap-2 font-bold mb-5 text-[15px]"><Info className="w-4 h-4 text-[#8B5CF6]" /> Game Info</h2>
+                 <div className="grid grid-cols-[90px_1fr] gap-y-3 text-[13px] text-slate-300">
+                   <div className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mt-0.5">TITLE</div><div className="font-medium truncate">{deal.title}</div>
+                   <div className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mt-0.5">PLATFORM</div><div className="font-medium">{deal.platforms.split(',')[0]}</div>
+                   <div className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mt-0.5">STATUS</div><div className="text-green-400 font-bold">Giveaway</div>
+                   <div className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mt-0.5">OFFER TYPE</div><div className="font-medium">Free To Keep</div>
+                   <div className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mt-0.5">LAST UPDATE</div><div className="font-medium">Today</div>
+                 </div>
+               </div>
+               
+               {/* Rating */}
+               <div className="bg-[#111A2D] p-6 rounded-2xl border border-white/5 flex flex-col justify-center">
+                 <h2 className="font-bold mb-4 text-[15px] text-center md:text-left">Community Rating</h2>
+                 <div className="px-2">
+                   <div className="flex items-baseline gap-1 mb-1 justify-center md:justify-start">
+                     <span className="text-4xl font-bold">{deal.steamRatingPercent || 87}</span>
+                     <span className="text-slate-400 text-lg">/100</span>
                    </div>
-                 )})}
-          </div>
+                   <div className="flex text-amber-400 gap-1 mb-3 text-lg justify-center md:justify-start">
+                     <span>★</span><span>★</span><span>★</span><span>★</span><span className="opacity-40">★</span>
+                   </div>
+                   <div className="text-xs text-slate-400 mb-5 text-center md:text-left">Based on {(deal.users || 1250).toLocaleString()}+ Reviews</div>
+                   <button className="w-full bg-[#1E293B] hover:bg-[#334155] border border-white/10 font-bold py-2.5 rounded-lg text-xs tracking-widest transition-colors uppercase">
+                     Read Reviews
+                   </button>
+                 </div>
+               </div>
+               
+             </div>
+             
+           </div>
         </div>
-      </div>
-      
-      <div className="grid md:grid-cols-2 gap-8 mt-12 bg-[#0F172A]/80 backdrop-blur-xl border border-white/5 rounded-3xl p-6 lg:p-10 shadow-[0_0_30px_rgba(0,0,0,0.3)]">
-          <div>
-            <h2 className="text-xl font-orbitron font-bold text-[#F9FAFB] glow-text mb-6 inline-flex items-center gap-3">
-              <Gamepad2 className="w-5 h-5 text-[#8B5CF6]" /> 
-              {deal.type === 'Game Info' || deal.type === 'Price Comparison' || deal.type === 'Discount' ? `Execution Protocol: ${deal.title}` : `Acquisition Protocol: ${deal.platforms.split(',')[0]} Sync`}
-            </h2>
-            <p className="text-[#9CA3AF] text-sm leading-relaxed whitespace-pre-wrap bg-[#050816]/80 p-5 rounded-2xl border border-white/5 font-poppins h-full max-h-[400px] overflow-y-auto hidden-scrollbar">
-              {deal.instructions}
-            </p>
-          </div>
-          <div>
-             <h3 className="text-xl font-orbitron font-bold text-[#F9FAFB] glow-text mb-6 inline-flex items-center gap-3"><BadgeCheck className="w-5 h-5 text-[#06B6D4]" /> System Diagnostics</h3>
-             <ul className="space-y-4 font-poppins">
-               {deal.type !== 'Game Info' && deal.type !== 'Price Comparison' && deal.type !== 'Discount' && (
-                 <li className="flex justify-between items-center bg-[#050816]/80 p-5 rounded-2xl border border-white/5 transition-colors hover:border-white/10">
-                   <div className="flex flex-col">
-                     <span className="text-[10px] uppercase tracking-widest text-[#9CA3AF] font-orbitron font-bold mb-1">Cycle Termination</span>
-                     {deal.end_date !== "N/A" && <span className="text-sm font-bold text-[#F9FAFB]">T-Minus: {deal.end_date}</span>}
-                   </div>
-                   {deal.end_date !== "N/A" ? <Countdown endDate={deal.end_date} /> : <span className="text-sm font-mono text-[#EF4444] font-bold drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]">Unknown (Critical Info)</span>}
-                 </li>
-               )}
-               <li className="flex justify-between items-center bg-[#050816]/80 p-5 rounded-2xl border border-white/5 transition-colors hover:border-white/10">
-                 <span className="text-[10px] uppercase tracking-widest text-[#9CA3AF] font-orbitron font-bold">Loot Tier</span>
-                 <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#EC4899] via-[#F59E0B] to-[#22C55E] uppercase tracking-widest text-[11px] font-orbitron drop-shadow-[0_0_5px_rgba(236,72,153,0.3)]">
-                   {getDealRarity(deal).label}
-                 </span>
-               </li>
-               <li className="flex justify-between items-center bg-[#050816]/80 p-5 rounded-2xl border border-white/5 transition-colors hover:border-white/10">
-                 <span className="text-[10px] uppercase tracking-widest text-[#9CA3AF] font-orbitron font-bold">Compatible Systems</span>
-                 <span className="text-sm text-[#F9FAFB] font-bold">{deal.platforms}</span>
-               </li>
-               {deal.users > 0 && (
-                 <li className="flex justify-between items-center bg-[#050816]/80 p-5 rounded-2xl border border-white/5 transition-colors hover:border-white/10">
-                    <span className="text-[10px] uppercase tracking-widest text-[#9CA3AF] font-orbitron font-bold">Active Syncs</span>
-                    <span className="text-sm text-[#06B6D4] font-bold flex items-center gap-1.5 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
-                        <Users className="w-3.5 h-3.5" />
-                        {deal.users.toLocaleString()} Nodes
-                    </span>
-                 </li>
-               )}
-               {deal.steamRatingPercent && (
-                  <li className="flex justify-between items-center bg-[#050816]/80 p-5 rounded-2xl border border-white/5 transition-colors hover:border-white/10">
-                     <span className="text-[10px] uppercase tracking-widest text-[#9CA3AF] font-orbitron font-bold">Consensus</span>
-                     <span className="text-sm text-[#F59E0B] font-bold flex items-center gap-1.5 drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]">
-                         <Star className="w-3.5 h-3.5 fill-current" />
-                         {deal.steamRatingPercent}% Rating
-                     </span>
-                  </li>
-               )}
-             </ul>
-          </div>
       </div>
     </div>
   );
 }
-
 

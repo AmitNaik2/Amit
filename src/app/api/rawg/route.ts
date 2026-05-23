@@ -1,0 +1,66 @@
+import { NextResponse } from 'next/server';
+
+const RAWG_MONTHLY_LIMIT = 20000;
+let rawgUsageCount = 0; // Simple in-memory mock for Next.js serverless
+
+async function fetchRawgData(title: string) {
+  const rawgKey = process.env.RAWG_API_KEY;
+  if (!rawgKey) return { not_found: true, reason: "rawg_not_configured" };
+
+  if (rawgUsageCount >= RAWG_MONTHLY_LIMIT) return { error: "Limit reached", not_found: true };
+
+  let cleanTitle = String(title)
+    .replace(/\(.*?\)/g, '')
+    .replace(/\bGiveaway\b/gi, '')
+    .replace(/\bPlaytest\b/gi, '')
+    .trim();
+
+  const encodedTitle = encodeURIComponent(cleanTitle);
+  const response = await fetch(`https://api.rawg.io/api/games?search=${encodedTitle}&key=${rawgKey}&page_size=1`, {
+    headers: { "User-Agent": "FreeGameTracker/1.0" }
+  });
+  
+  rawgUsageCount++;
+  
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new Error("Failed to fetch from RAWG: Invalid API Key");
+    }
+    throw new Error(`Failed to fetch from RAWG: ${response.status} ${response.statusText}`);
+  }
+  const text = await response.text();
+  let data; try { data = JSON.parse(text); } catch { throw new Error("Invalid JSON from RAWG"); }
+  
+  if (data.results && data.results.length > 0) {
+    const gameId = data.results[0].id;
+    const detailRes = await fetch(`https://api.rawg.io/api/games/${gameId}?key=${rawgKey}`, {
+      headers: { "User-Agent": "FreeGameTracker/1.0" }
+    });
+    rawgUsageCount++;
+    if (detailRes.ok) {
+       try {
+          return await detailRes.json();
+       } catch(e) {}
+    }
+    return data.results[0];
+  }
+  
+  return { not_found: true };
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const title = searchParams.get('title');
+
+  if (!title) {
+    return NextResponse.json({ error: 'Missing title query parameter' }, { status: 400 });
+  }
+
+  try {
+    const data = await fetchRawgData(title);
+    return NextResponse.json(data);
+  } catch (e: any) {
+    console.error("RAWG API Error:", e);
+    return NextResponse.json({ not_found: true }, { status: 500 });
+  }
+}
