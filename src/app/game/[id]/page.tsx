@@ -8,7 +8,8 @@ export const revalidate = 3600; // 1-hour ISR
 
 // Helper to fetch any type of deal server-side
 async function fetchServerDeal(id: string): Promise<GameDeal | null> {
-  if (id.startsWith('gp_')) {
+  // If it's a plain number or starts with gp_, fetch from GamerPower
+  if (id.startsWith('gp_') || /^\d+$/.test(id)) {
     return getGameDealById(id);
   } else if (id.startsWith('cs_')) {
     const dealID = id.replace('cs_', '');
@@ -70,7 +71,7 @@ export async function generateMetadata(
   }
 
   const title = `${deal.title} - FREE until ${deal.end_date !== "2099-12-31" ? deal.end_date : 'Limited Time'}`;
-  const description = deal.description.slice(0, 150) + "...";
+  const description = (deal.description || `Get ${deal.title} for free!`).slice(0, 150) + "...";
 
   return {
     title,
@@ -98,7 +99,7 @@ export default async function GamePage(props: { params: Promise<{ id: string }> 
   // Generate Product + Offer Schema
   const productSchemaData = {
     "name": deal.title,
-    "description": deal.description,
+    "description": deal.description || deal.instructions || `Grab the free deal for ${deal.title} on ${deal.platforms}. Don't miss out on this limited-time offer.`,
     "image": deal.image,
     "offers": {
       "@type": "Offer",
