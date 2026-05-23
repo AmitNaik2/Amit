@@ -426,7 +426,7 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
               {/* Screenshots & Trailers */}
               <div id="screens" className="bg-[#111A2D] p-4 lg:p-6 rounded-xl border border-white/5 scroll-mt-28">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="flex items-center gap-2 font-bold text-xl"><ImageIcon className="w-5 h-5 text-[#8B5CF6]" /> Media Gallery</h2>
+                  <h2 className="flex items-center gap-2 font-bold text-xl"><ImageIcon className="w-5 h-5 text-[#8B5CF6]" /> Screenshots</h2>
                   {mediaItems.length > 0 && (
                     <button
                       onClick={() => {
@@ -441,7 +441,7 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
                 </div>
                 
                 {/* Main Media Viewer */}
-                <div className="aspect-video bg-slate-950 rounded-xl mb-4 relative overflow-hidden group border border-white/5 shadow-inner">
+                <div className="aspect-video bg-slate-950 rounded-xl mb-4 relative overflow-hidden group">
                   {isPlaying && selectedMediaItem && (selectedMediaItem.type === 'video' || selectedMediaItem.type === 'youtube') ? (
                     <div className="w-full h-full">
                       {selectedMediaItem.type === 'video' ? (
@@ -449,12 +449,12 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
                           src={selectedMediaItem.url}
                           controls
                           autoPlay
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-cover"
                         />
                       ) : (
                         <iframe
                           src={`https://www.youtube.com/embed/${selectedMediaItem.url}?autoplay=1&rel=0`}
-                          className="w-full h-full border-0"
+                          className="w-full h-full border-0 object-cover"
                           allowFullScreen
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         />
@@ -475,7 +475,7 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
                       >
                         <img
                           src={selectedMediaItem.url || selectedMediaItem.thumbnail}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-cover"
                           alt={deal.title}
                         />
                         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors duration-300" />
@@ -503,34 +503,43 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
                   )}
                 </div>
                 
-                {/* Thumbnails Swiper Row */}
-                <div className="relative">
-                  <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-2 pt-1 scroll-smooth">
-                    {mediaItems.map((item, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          setSelectedMediaIndex(idx);
-                          setIsPlaying(false);
-                        }}
-                        className={cn(
-                          "relative aspect-video w-24 shrink-0 rounded-lg overflow-hidden border transition-all duration-300",
-                          selectedMediaIndex === idx
-                            ? "border-[#8B5CF6] ring-2 ring-[#8B5CF6]/40 opacity-100 scale-95"
-                            : "border-white/5 opacity-60 hover:opacity-100 hover:border-white/20 hover:scale-[1.02]"
-                        )}
-                      >
-                        <img src={item.thumbnail} className="w-full h-full object-cover" alt={`Thumb ${idx}`} />
-                        {(item.type === 'video' || item.type === 'youtube') && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[0.5px]">
-                            <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
-                              <Play className="w-2.5 h-2.5 text-white fill-current ml-0.5" />
+                {/* Thumbnails Grid */}
+                <div className="grid grid-cols-4 gap-3">
+                  {[0, 1, 2, 3].map((idx) => {
+                    const item = mediaItems[idx];
+                    if (item) {
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setSelectedMediaIndex(idx);
+                            setIsPlaying(false);
+                          }}
+                          className={cn(
+                            "relative aspect-video w-full rounded-lg overflow-hidden transition-all duration-300",
+                            selectedMediaIndex === idx
+                              ? "opacity-100 ring-2 ring-[#8B5CF6] ring-offset-2 ring-offset-[#111A2D] scale-100"
+                              : "opacity-50 hover:opacity-100 hover:scale-[1.02]"
+                          )}
+                        >
+                          <img src={item.thumbnail} className="w-full h-full object-cover" alt={`Thumb ${idx}`} />
+                          {(item.type === 'video' || item.type === 'youtube') && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[0.5px]">
+                              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                                <Play className="w-2 h-2 text-white fill-current ml-0.5" />
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
+                          )}
+                        </button>
+                      );
+                    } else {
+                      return (
+                        <div key={idx} className="relative aspect-video w-full rounded-lg bg-[#1A2235] flex items-center justify-center opacity-30">
+                          <ImageIcon className="w-5 h-5 text-slate-500" />
+                        </div>
+                      );
+                    }
+                  })}
                 </div>
               </div>
 
