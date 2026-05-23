@@ -16,6 +16,7 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
   const [activeReqTab, setActiveReqTab] = useState<"min" | "rec">("min");
 
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
+  const [thumbnailOffset, setThumbnailOffset] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -30,8 +31,17 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
 
   useEffect(() => {
     setSelectedMediaIndex(0);
+    setThumbnailOffset(0);
     setIsPlaying(false);
   }, [deal]);
+
+  useEffect(() => {
+    setThumbnailOffset((prev) => {
+      if (selectedMediaIndex < prev) return selectedMediaIndex;
+      if (selectedMediaIndex >= prev + 4) return Math.max(0, selectedMediaIndex - 3);
+      return prev;
+    });
+  }, [selectedMediaIndex]);
 
   const gameInfo = useIgdb(deal?.title || "");
 
@@ -526,7 +536,8 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
                   </button>
 
                   <div className="grid grid-cols-4 gap-3 flex-1">
-                    {[0, 1, 2, 3].map((idx) => {
+                    {[0, 1, 2, 3].map((offsetIdx) => {
+                      const idx = thumbnailOffset + offsetIdx;
                       const item = mediaItems[idx];
                       if (item) {
                         return (
