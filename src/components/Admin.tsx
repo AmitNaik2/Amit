@@ -55,11 +55,22 @@ export function Admin({ deals }: AdminProps) {
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-    if (email === "amitnaik0023@gmail.com" && password === "Amit_Naik12") {
-      setIsLoggedIn(true);
-      setError("");
-    } else {
-      setError("Invalid credentials.");
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        setIsLoggedIn(true);
+        setError("");
+      } else {
+        setError(data.message || "Invalid credentials.");
+      }
+    } catch (err) {
+      setError("An error occurred during login.");
     }
   };
 
