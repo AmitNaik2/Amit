@@ -4,7 +4,7 @@ const RAWG_MONTHLY_LIMIT = 20000;
 let rawgUsageCount = 0; // Simple in-memory mock for Next.js serverless
 
 async function fetchRawgData(title: string) {
-  const rawgKey = process.env.RAWG_API_KEY;
+  const rawgKey = process.env.RAWG_API_KEY || process.env.VITE_RAWG_API_KEY;
   if (!rawgKey) return { not_found: true, reason: "rawg_not_configured" };
 
   if (rawgUsageCount >= RAWG_MONTHLY_LIMIT) return { error: "Limit reached", not_found: true };
