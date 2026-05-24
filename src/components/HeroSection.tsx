@@ -172,7 +172,7 @@ export function HeroSection({ onExploreClick, onTrendingClick, onFreeGamesClick 
                 if (btn) btn.innerHTML = '...';
                 const email = (form.elements.namedItem('email') as HTMLInputElement).value;
                 try {
-                  const res = await fetch('/api/subscribe', {
+                  const res = await fetch('/api/notify', {
                     method: 'POST',
                     body: JSON.stringify({ email }),
                     headers: { 'Content-Type': 'application/json' }

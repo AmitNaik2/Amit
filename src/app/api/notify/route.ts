@@ -112,6 +112,10 @@ export async function POST(request: Request) {
 
     const transporter = createTransporter();
 
+    // Save to database
+    const { addSubscriber } = await import('@/lib/db');
+    await addSubscriber(email);
+
     // Send confirmation to subscriber + optional admin alert in parallel
     await Promise.all([
       transporter.sendMail(buildConfirmationEmail(email, dealTitle)),
