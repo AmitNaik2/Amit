@@ -25,7 +25,7 @@ export function DealCard({ deal, index = 0, onShare = () => {}, onRemind, priori
   
   // Try to enrich deals
   const gameInfo = useIgdb(index < 12 ? deal.title : "");
-  const bgImage = gameInfo?.background_image || deal.image || deal.thumbnail;
+  const bgImage = deal.image || deal.thumbnail;
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -69,8 +69,8 @@ export function DealCard({ deal, index = 0, onShare = () => {}, onRemind, priori
     <motion.div
       ref={cardRef}
       onMouseMove={handleMouseMove}
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 30, scale: 1 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.5, delay: index * 0.05, ease: "easeOut" }}
       whileHover={{ y: -4, scale: 1.01 }}
       className="flex flex-col overflow-hidden transition-colors duration-500 bg-[#0F172A]/80 backdrop-blur-xl border border-white/5 rounded-2xl group relative shadow-lg hover:shadow-[0_0_30px_rgba(139,92,246,0.15)] hover:border-[#8B5CF6]/50"
@@ -85,16 +85,14 @@ export function DealCard({ deal, index = 0, onShare = () => {}, onRemind, priori
       {/* Image Section */}
       <div className="relative w-full h-48 sm:h-52 shrink-0 overflow-hidden bg-black border-b border-white/5">
         <Link href={gameUrl} className="block w-full h-full group/image">
-          <div className="absolute inset-0 transition-transform duration-300 group-hover:scale-[1.02] origin-center">
-            <Image
-              src={bgImage}
-              alt={`Free download of ${deal.title} on ${deal.platforms}`}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
-              className="block object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity duration-300"
-              priority={priority}
-            />
-          </div>
+          <Image
+            src={bgImage}
+            alt={`Free download of ${deal.title} on ${deal.platforms}`}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+            className="block object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity duration-300"
+            priority={priority}
+          />
           <div className="absolute inset-0 transition-opacity duration-500 bg-gradient-to-t from-[#050816] via-[#050816]/40 to-transparent opacity-80 group-hover:opacity-60"></div>
           
           <div className="absolute top-3 right-3 flex gap-2">
