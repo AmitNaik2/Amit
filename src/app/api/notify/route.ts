@@ -131,10 +131,10 @@ export async function POST(request: Request) {
       success: true,
       message: "Successfully subscribed! Check your inbox.",
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[notify] Error sending email:", error);
     return NextResponse.json(
-      { error: "Failed to send confirmation email. Please try again." },
+      { error: "Failed to send confirmation email: " + (error.message || String(error)) },
       { status: 500 }
     );
   }
