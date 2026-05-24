@@ -26,7 +26,14 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
 
   useEffect(() => {
     if (deals.length > 0) {
-      const found = deals.find((d) => String(d.id) === id || decodeURIComponent(String(d.id)) === id);
+      const found = deals.find((d) => 
+        String(d.id) === id || 
+        decodeURIComponent(String(d.id)) === id || 
+        String(d.id) === `gp_${id}` || 
+        String(d.id) === `cs_${id}` || 
+        String(d.id) === `rawg_${id}` ||
+        id === `gp_${String(d.id)}`
+      ) || deals[0];
       if (found) setDeal(found);
     }
   }, [id, deals]);
