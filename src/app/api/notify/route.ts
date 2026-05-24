@@ -39,25 +39,26 @@ function buildConfirmationEmail(
   return {
     from: process.env.EMAIL_FROM || "GamesDealsHub <noreply@gamesdealshub.me>",
     to: email,
-    subject: "✅ You're subscribed to GamesDealsHub alerts!",
+    subject: "🎉 Welcome to GamesDealsHub! Your free game alerts are active",
     html: `
       <div style="font-family:sans-serif;max-width:600px;margin:auto;background:#0a0a0a;color:#fff;padding:32px;border-radius:12px;">
         <h1 style="color:#6366f1;margin-top:0;">🎮 GamesDealsHub</h1>
-        <p style="font-size:16px;">Hey gamer! You're now subscribed to free game alerts.</p>
+        <p style="font-size:18px;"><strong>Welcome to the club!</strong></p>
+        <p style="font-size:16px;color:#ccc;">Your subscription was completely successful.</p>
         ${
           dealTitle
-            ? `<p style="font-size:14px;color:#aaa;">You'll be notified when deals like <strong style="color:#fff;">${dealTitle}</strong> go live.</p>`
+            ? `<p style="font-size:14px;color:#aaa;">You'll be the first to know when deals like <strong style="color:#fff;">${dealTitle}</strong> go live.</p>`
             : ""
         }
         <p style="font-size:14px;color:#aaa;">
-          We'll email you whenever a new free game drops on Epic, Steam, or GOG — before it expires.
+          You will now receive instant email alerts whenever an amazing game goes 100% free on Epic Games, Steam, or GOG — giving you plenty of time to claim it before it expires.
         </p>
         <a href="https://www.gamesdealshub.me" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#6366f1;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">
           View Latest Deals →
         </a>
         <hr style="border-color:#222;margin:24px 0;" />
         <p style="font-size:12px;color:#555;">
-          Don't want emails? Reply with "unsubscribe" and we'll remove you immediately.
+          Don't want these emails anymore? Simply reply to this email with the word "unsubscribe" and we will remove you from our database immediately.
         </p>
       </div>
     `,
