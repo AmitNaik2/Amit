@@ -23,6 +23,11 @@ async function fetchRawgData(title: string) {
 
   cleanTitle = cleanTitle.replace(/"/g, '').trim();
 
+  // Skip RAWG fetch for internal apps or completely unrelated generic terms that cause bad matches
+  if (cleanTitle.toLowerCase().includes('gamerpower')) {
+    return { not_found: true, reason: "internal_app" };
+  }
+
   const encodedTitle = encodeURIComponent(cleanTitle);
   const response = await fetch(`https://api.rawg.io/api/games?search=${encodedTitle}&key=${rawgKey}&page_size=1`, {
     headers: { "User-Agent": "FreeGameTracker/1.0" },

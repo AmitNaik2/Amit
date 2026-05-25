@@ -14,6 +14,11 @@ async function fetchSteamData(title: string) {
   }
   cleanTitle = cleanTitle.replace(/"/g, '').trim();
 
+  // Skip Steam fetch for internal apps or completely unrelated generic terms that cause bad matches
+  if (cleanTitle.toLowerCase().includes('gamerpower')) {
+    return { not_found: true, reason: "internal_app" };
+  }
+
   // 2. Search Steam for the game to get the AppID
   const searchUrl = `https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(cleanTitle)}&l=english&cc=US`;
   const searchRes = await fetch(searchUrl, { next: { revalidate: 604800 } });
