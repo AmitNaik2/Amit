@@ -79,6 +79,10 @@ export default async function Home() {
         name: game.title,
         description: game.description,
         image: game.image,
+        brand: {
+          "@type": "Brand",
+          name: "GamesDealsHub"
+        },
         offers: {
           "@type": "Offer",
           price: "0.00",
@@ -88,6 +92,38 @@ export default async function Home() {
             ? { priceValidUntil: new Date(game.end_date).toISOString().split("T")[0] }
             : {}),
           url: game.open_giveaway_url || game.gamerpower_url,
+          hasMerchantReturnPolicy: {
+            "@type": "MerchantReturnPolicy",
+            applicableCountry: "US",
+            returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted"
+          },
+          shippingDetails: {
+            "@type": "OfferShippingDetails",
+            shippingRate: {
+              "@type": "MonetaryAmount",
+              value: "0",
+              currency: "USD"
+            },
+            shippingDestination: {
+              "@type": "DefinedRegion",
+              addressCountry: "US"
+            },
+            deliveryTime: {
+              "@type": "ShippingDeliveryTime",
+              handlingTime: {
+                "@type": "QuantitativeValue",
+                minValue: 0,
+                maxValue: 0,
+                unitCode: "DAY"
+              },
+              transitTime: {
+                "@type": "QuantitativeValue",
+                minValue: 0,
+                maxValue: 0,
+                unitCode": "DAY"
+              }
+            }
+          }
         },
       },
     })),

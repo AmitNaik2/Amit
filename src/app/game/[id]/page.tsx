@@ -101,13 +101,49 @@ export default async function GamePage(props: { params: Promise<{ id: string }> 
     "name": deal.title,
     "description": deal.description || deal.instructions || `Grab the free deal for ${deal.title} on ${deal.platforms}. Don't miss out on this limited-time offer.`,
     "image": deal.image,
+    "brand": {
+      "@type": "Brand",
+      "name": "GamesDealsHub"
+    },
     "offers": {
       "@type": "Offer",
       "price": deal.salePrice || "0.00",
       "priceCurrency": "USD",
       "availability": "https://schema.org/InStock",
       "priceValidUntil": (deal.end_date && deal.end_date !== "N/A" && deal.end_date !== "2099-12-31") ? new Date(deal.end_date).toISOString() : undefined,
-      "url": deal.open_giveaway_url || ""
+      "url": deal.open_giveaway_url || "",
+      "hasMerchantReturnPolicy": {
+        "@type": "MerchantReturnPolicy",
+        "applicableCountry": "US",
+        "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"
+      },
+      "shippingDetails": {
+        "@type": "OfferShippingDetails",
+        "shippingRate": {
+          "@type": "MonetaryAmount",
+          "value": "0",
+          "currency": "USD"
+        },
+        "shippingDestination": {
+          "@type": "DefinedRegion",
+          "addressCountry": "US"
+        },
+        "deliveryTime": {
+          "@type": "ShippingDeliveryTime",
+          "handlingTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 0,
+            "maxValue": 0,
+            "unitCode": "DAY"
+          },
+          "transitTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 0,
+            "maxValue": 0,
+            "unitCode": "DAY"
+          }
+        }
+      }
     }
   };
 
