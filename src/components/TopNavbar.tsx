@@ -71,15 +71,21 @@ export function TopNavbar({
           </Link>
 
           {/* Links (Desktop) */}
-          <div className="hidden lg:flex items-center justify-center gap-x-4 gap-y-2 xl:gap-5 flex-wrap flex-1 px-4">
-            <Link href="/" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-white/90 hover:text-[#06B6D4] transition-colors">HOME</Link>
-            <Link href="/free-games" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#8B5CF6] transition-colors">FREE GAMES</Link>
-            <Link href="/reviews" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#EC4899] transition-colors">GAME REVIEWS</Link>
-            <Link href="/guides" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-white transition-colors">GAMING GUIDES</Link>
-            <Link href="/optimization" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#06B6D4] transition-colors">PC OPTIMIZATION</Link>
-            <Link href="/news" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#8B5CF6] transition-colors">NEWS</Link>
-            <Link href="/about" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#EC4899] transition-colors">ABOUT</Link>
-            <Link href="/contact" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-white transition-colors">CONTACT</Link>
+          <div className="hidden lg:flex flex-col items-center justify-center gap-y-1.5 flex-1 px-4">
+            {/* Top Row */}
+            <div className="flex items-center gap-x-4 xl:gap-x-6">
+              <Link href="/" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-white/90 hover:text-[#06B6D4] transition-colors">HOME</Link>
+              <Link href="/free-games" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#8B5CF6] transition-colors">FREE GAMES</Link>
+              <Link href="/reviews" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#EC4899] transition-colors">GAME REVIEWS</Link>
+            </div>
+            {/* Bottom Row */}
+            <div className="flex items-center gap-x-4 xl:gap-x-6">
+              <Link href="/guides" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-white transition-colors">GAMING GUIDES</Link>
+              <Link href="/optimization" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#06B6D4] transition-colors">PC OPTIMIZATION</Link>
+              <Link href="/news" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#8B5CF6] transition-colors">NEWS</Link>
+              <Link href="/about" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#EC4899] transition-colors">ABOUT</Link>
+              <Link href="/contact" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-white transition-colors">CONTACT</Link>
+            </div>
           </div>
 
           {/* Right Side */}
