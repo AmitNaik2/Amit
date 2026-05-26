@@ -3,6 +3,27 @@ import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
+import { Inter, Orbitron, Poppins } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-orbitron",
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
+});
 
 const siteUrl = "https://www.gamesdealshub.me";
 
@@ -51,19 +72,12 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className="h-full antialiased dark">
+    <html lang="en" className={`h-full antialiased dark ${inter.variable} ${orbitron.variable} ${poppins.variable}`}>
       <head>
         {/* WebSite structured data for Google Sitelinks Searchbox */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
-        />
-        {/* ✅ TIP: Consider dropping Poppins — Inter alone covers all weights you need */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
-          rel="stylesheet"
         />
       </head>
       <body className="min-h-full flex flex-col bg-[#050505] text-white">
