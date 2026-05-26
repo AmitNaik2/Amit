@@ -53,7 +53,7 @@ export function TopNavbar({
   return (
     <nav className="sticky top-0 z-50 bg-[#050816]/80 backdrop-blur-2xl border-b border-[#06B6D4]/20 shadow-[0_4px_30px_rgba(6,182,212,0.15)] font-orbitron">
       <div className="container px-4 mx-auto max-w-[1400px]">
-        <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
+        <div className="flex items-center justify-between min-h-[4rem] sm:min-h-[5rem] py-3 gap-4">
           {/* Logo */}
           <Link href="/" onClick={onHomeClick} className="flex items-center gap-3">
             {onlineUsers > 0 && (
@@ -71,7 +71,7 @@ export function TopNavbar({
           </Link>
 
           {/* Links (Desktop) */}
-          <div className="hidden xl:flex items-center gap-4 flex-nowrap whitespace-nowrap">
+          <div className="hidden lg:flex items-center justify-center gap-x-4 gap-y-2 xl:gap-5 flex-wrap flex-1 px-4">
             <Link href="/" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-white/90 hover:text-[#06B6D4] transition-colors">HOME</Link>
             <Link href="/free-games" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#8B5CF6] transition-colors">FREE GAMES</Link>
             <Link href="/reviews" className="text-[10px] xl:text-xs font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#EC4899] transition-colors">GAME REVIEWS</Link>
@@ -114,7 +114,7 @@ export function TopNavbar({
             
             {/* Mobile Menu Toggle */}
             <button 
-              className="xl:hidden flex items-center justify-center w-9 h-9 text-white hover:text-[#06B6D4] transition-colors"
+              className="lg:hidden flex items-center justify-center w-9 h-9 text-white hover:text-[#06B6D4] transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle mobile menu"
             >
@@ -126,7 +126,7 @@ export function TopNavbar({
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="xl:hidden bg-[#050816]/95 border-b border-[#06B6D4]/20 p-4 font-orbitron">
+        <div className="lg:hidden bg-[#050816]/95 border-b border-[#06B6D4]/20 p-4 font-orbitron">
           <div className="flex flex-col space-y-4">
             <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-widest text-white hover:text-[#06B6D4]">HOME</Link>
             <Link href="/free-games" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-widest text-[#9CA3AF] hover:text-[#8B5CF6]">FREE GAMES</Link>
