@@ -247,14 +247,14 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
     setPremiumLoading(true);
     setActivePremiumSearch(searchTitle);
     try {
-      const url = searchTitle ? "/api/steam-deals?title=" + encodeURIComponent(searchTitle) : "/api/steam-deals";
+      const url = searchTitle ? "/api/compare-deals?title=" + encodeURIComponent(searchTitle) : "/api/compare-deals";
       const steamDealsRes = await fetch(url);
       if (!steamDealsRes.ok) {
          throw new Error("Failed to load Premium Deals (HTTP " + steamDealsRes.status + ")");
       }
       const text = await steamDealsRes.text();
       let steamData;
-      try { steamData = JSON.parse(text); } catch { throw new Error("Invalid JSON from /api/steam-deals"); }
+      try { steamData = JSON.parse(text); } catch { throw new Error("Invalid JSON from /api/compare-deals"); }
       
       if (!Array.isArray(steamData)) {
           setPremiumDeals([]);
