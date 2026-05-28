@@ -63,6 +63,6 @@ export async function GET(request: Request) {
     return NextResponse.json(deals);
   } catch (err) {
     console.error("Compare Deals API Error:", err);
-    return NextResponse.json([], { status: 500 });
+    return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
