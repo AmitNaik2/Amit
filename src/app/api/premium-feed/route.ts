@@ -5,8 +5,8 @@ export async function GET(request: Request) {
   const title = searchParams.get('title') || '';
   try {
     const url = title 
-      ? `https://www.cheapshark.com/api/1.0/deals?title=${encodeURIComponent(title)}&exact=0&storeID=1,25&sortBy=Deal%20Rating` 
-      : `https://www.cheapshark.com/api/1.0/deals?storeID=1,25&sortBy=Deal%20Rating`;
+      ? `https://www.cheapshark.com/api/1.0/deals?title=${encodeURIComponent(title)}&exact=0&storeID=1,25&sortBy=Deal%20Rating&_t=2` 
+      : `https://www.cheapshark.com/api/1.0/deals?storeID=1,25&sortBy=Deal%20Rating&_t=2`;
       
     // Cache the response for 1 hour (3600 seconds) to avoid CheapShark 429 Rate Limits
     const res = await fetch(url, { 

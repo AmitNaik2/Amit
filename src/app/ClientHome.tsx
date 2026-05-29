@@ -260,6 +260,8 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
       
       if (!Array.isArray(csData)) {
           setPremiumDeals([]);
+          setPremiumError(csData.error || "Invalid data format received from Deals API");
+          setPremiumLoading(false);
           return;
       }
 
