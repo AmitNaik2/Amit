@@ -63,6 +63,7 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
   const [premiumLoading, setPremiumLoading] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
+  const [premiumError, setPremiumError] = useState<string | null>(null);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedRarity, setSelectedRarity] = useState<RarityLevel | 'All'>('All');
@@ -296,7 +297,7 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
       setPremiumDeals(deals);
     } catch (err: any) {
       const errorMessage = err.message === 'Failed to fetch' ? 'Network error: Please try again.' : err.message;
-      setError(errorMessage || "Failed to load Premium Deals. Please try again.");
+      setPremiumError(errorMessage || "Failed to load Premium Deals. Please try again.");
     } finally {
       setPremiumLoading(false);
     }
@@ -727,7 +728,22 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
                   </div>
                </div>
              </div>
-                {premiumLoading ? (
+                {premiumError ? (
+                  <div className="flex flex-col items-center justify-center py-12 mb-8 bg-red-500/5 border border-red-500/20 rounded-2xl">
+                    <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
+                      <AlertCircle className="w-6 h-6 text-red-500" />
+                    </div>
+                    <h3 className="text-red-500 font-bold mb-2">Failed to load deals</h3>
+                    <p className="text-red-400/80 text-sm mb-4">{premiumError}</p>
+                    <button 
+                      onClick={() => fetchPremium()}
+                      className="flex items-center gap-2 px-6 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl transition-all font-bold text-sm"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      Try Again
+                    </button>
+                  </div>
+                ) : premiumLoading ? (
                   <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
                     {[...Array(6)].map((_, i) => (
                       <SkeletonCard key={i} />
