@@ -246,6 +246,7 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
 
   const fetchPremium = async (searchTitle: string = "") => {
     setPremiumLoading(true);
+    setPremiumError(null);
     setActivePremiumSearch(searchTitle);
     try {
       const url = searchTitle ? "/api/premium-feed?title=" + encodeURIComponent(searchTitle) : "/api/premium-feed";

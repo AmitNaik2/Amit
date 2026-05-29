@@ -9,7 +9,12 @@ export async function GET(request: Request) {
       : `https://www.cheapshark.com/api/1.0/deals?storeID=1,25&sortBy=Deal%20Rating`;
       
     // Cache the response for 1 hour (3600 seconds) to avoid CheapShark 429 Rate Limits
-    const res = await fetch(url, { next: { revalidate: 3600 } });
+    const res = await fetch(url, { 
+      next: { revalidate: 3600 },
+      headers: {
+        'User-Agent': 'GamesDealsHub/1.0 (contact@gamesdealshub.me)'
+      }
+    });
     if (!res.ok) {
        throw new Error(`CheapShark API error: ${res.status}`);
     }
