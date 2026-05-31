@@ -108,6 +108,9 @@ export async function generateMetadata(
   return {
     title,
     description,
+    alternates: {
+      canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.gamesdealshub.me'}/game/${deal.id}`,
+    },
     openGraph: {
       title,
       description,
