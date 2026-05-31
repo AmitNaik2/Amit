@@ -12,8 +12,21 @@ export const metadata: Metadata = {
   alternates: { canonical: '/guides' }
 };
 
+import { StructuredData } from "../../../components/StructuredData";
+
 export default function Page() { 
+  const articleSchema = {
+    "headline": "How to Build a Massive PC Game Library for Free",
+    "description": "A comprehensive guide to legally acquiring hundreds of premium PC games from Epic Games, Steam, GOG, and Prime Gaming.",
+    "author": { "@type": "Organization", "name": "GamesDealsHub" },
+    "publisher": { "@type": "Organization", "name": "GamesDealsHub", "logo": { "@type": "ImageObject", "url": "https://www.gamesdealshub.me/og-image.jpg" } },
+    "datePublished": "2026-05-31",
+    "dateModified": "2026-05-31"
+  };
+
   return (
+    <>
+    <StructuredData type="Article" data={articleSchema} />
     <div className="min-h-screen pt-24 pb-20 px-4 md:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-10 text-center">
@@ -87,5 +100,6 @@ export default function Page() {
         </div>
       </div>
     </div>
+    </>
   );
 }

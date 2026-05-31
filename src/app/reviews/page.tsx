@@ -12,8 +12,21 @@ export const metadata: Metadata = {
   alternates: { canonical: '/reviews' }
 };
 
+import { StructuredData } from "../../../components/StructuredData";
+
 export default function Page() { 
+  const articleSchema = {
+    "headline": "Helldivers 2: The Co-Op Masterpiece We Didn't Know We Needed",
+    "description": "A chaotic, hilarious, and brilliantly designed multiplayer shooter that proves Live Service games aren't dead.",
+    "author": { "@type": "Organization", "name": "GamesDealsHub" },
+    "publisher": { "@type": "Organization", "name": "GamesDealsHub", "logo": { "@type": "ImageObject", "url": "https://www.gamesdealshub.me/og-image.jpg" } },
+    "datePublished": "2026-05-31",
+    "dateModified": "2026-05-31"
+  };
+
   return (
+    <>
+    <StructuredData type="Article" data={articleSchema} />
     <div className="min-h-screen pt-24 pb-20 px-4 md:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-10 text-center">
@@ -77,5 +90,6 @@ export default function Page() {
         </div>
       </div>
     </div>
+    </>
   );
 }

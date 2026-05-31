@@ -1,6 +1,6 @@
 import React from 'react';
 
-type StructuredDataType = 'ItemList' | 'Product' | 'WebSite';
+type StructuredDataType = 'ItemList' | 'Product' | 'WebSite' | 'Article';
 
 interface StructuredDataProps {
   type: StructuredDataType;
