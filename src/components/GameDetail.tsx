@@ -664,9 +664,9 @@ export function GameDetail({ deals, isLoading }: { deals: GameDeal[], isLoading?
                      <span>★</span><span>★</span><span>★</span><span>★</span><span className="opacity-40">★</span>
                    </div>
                    <div className="text-xs text-slate-400 mb-5 text-center md:text-left">Based on {(deal.users || 1250).toLocaleString()}+ Reviews</div>
-                   <Link href="/reviews" className="block w-full text-center bg-[#1E293B] hover:bg-[#334155] border border-white/10 font-bold py-2.5 rounded-lg text-xs tracking-widest transition-colors uppercase">
+                   <a href={deal.open_giveaway_url || "#"} target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-[#1E293B] hover:bg-[#334155] border border-white/10 font-bold py-2.5 rounded-lg text-xs tracking-widest transition-colors uppercase">
                      Read Reviews
-                   </Link>
+                   </a>
                  </div>
                </div>
                
