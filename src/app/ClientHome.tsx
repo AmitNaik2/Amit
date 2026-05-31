@@ -137,6 +137,15 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
     }
   };
   
+  const [timeSinceRefreshed, setTimeSinceRefreshed] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeSinceRefreshed(Math.floor((Date.now() - lastRefreshed.getTime()) / 60000));
+    }, 15000); // Check frequently
+    return () => clearInterval(interval);
+  }, [lastRefreshed]);
+
   const sortedGamesDeals = useMemo(() => {
     let result = deals.filter(deal => {
       if (deal.end_date && deal.end_date !== 'N/A') {
@@ -144,7 +153,7 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
            ? deal.end_date.replace(' ', 'T') + 'Z' 
            : deal.end_date;
          const endTime = new Date(endStr).getTime();
-         if (!isNaN(endTime) && endTime < new Date("2026-05-20").getTime()) {
+         if (!isNaN(endTime) && endTime < Date.now()) {
            return false;
          }
       }
