@@ -2,14 +2,22 @@ import { Metadata } from 'next';
 import { Newspaper } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Gaming News & Free Game Alerts | GamesDealsHub',
-  description: 'Get the latest PC gaming news, hardware updates, and deal announcements.',
-  openGraph: {
-    title: 'Gaming News & Free Game Alerts | GamesDealsHub',
-    description: 'Get the latest PC gaming news, hardware updates, and deal announcements.',
-    url: 'https://www.gamesdealshub.me/news'
+  title: "Gaming News & Free Game Alerts | GamesDealsHub",
+  description: "Get the latest PC gaming news, hardware updates, and free game deal announcements. Updated daily.",
+  alternates: {
+    canonical: "https://www.gamesdealshub.me/news",
   },
-  alternates: { canonical: 'https://www.gamesdealshub.me/news' }
+  openGraph: {
+    title: "Gaming News & Free Game Alerts | GamesDealsHub",
+    description: "Get the latest PC gaming news, hardware updates, and free game deal announcements.",
+    url: "https://www.gamesdealshub.me/news",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Gaming News & Free Game Alerts | GamesDealsHub",
+    description: "Get the latest PC gaming news, hardware updates, and free game deal announcements.",
+    images: ["https://www.gamesdealshub.me/og-image.jpg"],
+  },
 };
 
 export default function Page() { 

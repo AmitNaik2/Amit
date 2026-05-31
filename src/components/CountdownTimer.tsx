@@ -1,8 +1,14 @@
 "use client";
-import React, { useState, useEffect } from 'react';
 
-export function CountdownTimer({ expiryDate }: { expiryDate: string }) {
-  const [timeLeft, setTimeLeft] = useState('');
+import { useEffect, useState } from "react";
+
+interface CountdownTimerProps {
+  endDate: string;
+}
+
+export default function CountdownTimer({ endDate }: CountdownTimerProps) {
+  const [timeLeft, setTimeLeft] = useState<string>("");
+  const [colorClass, setColorClass] = useState<string>("text-green-500");
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -11,32 +17,60 @@ export function CountdownTimer({ expiryDate }: { expiryDate: string }) {
 
   useEffect(() => {
     if (!isMounted) return;
-    const tick = () => {
-      const diff = new Date(expiryDate).getTime() - Date.now();
-      if (diff <= 0) { 
-        setTimeLeft('Expired'); 
-        return; 
+    if (!endDate || endDate === "N/A" || endDate === "2099-12-31") {
+      setTimeLeft("Limited Time");
+      setColorClass("text-green-500");
+      return;
+    }
+
+    const endStr = endDate.includes(" ") && !endDate.includes("Z") && !endDate.includes("GMT")
+      ? endDate.replace(" ", "T") + "Z"
+      : endDate;
+
+    const calculateTimeLeft = () => {
+      const end = new Date(endStr).getTime();
+      const now = Date.now();
+      const difference = end - now;
+
+      if (isNaN(difference)) return "";
+
+      if (difference <= 0) {
+        return "Expired";
       }
-      
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+
+      if (days >= 2) {
+        setColorClass("text-green-500");
+      } else if (days >= 0 && hours >= 12 || days === 1) {
+        setColorClass("text-yellow-500");
+      } else {
+        setColorClass("text-red-500");
+      }
+
       const parts = [];
-      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const m = Math.floor((diff / (1000 * 60)) % 60);
+      if (days > 0) parts.push(`${days}d`);
+      if (hours > 0 || days > 0) parts.push(`${hours}h`);
+      parts.push(`${minutes}m`);
 
-      if (d > 0) parts.push(`${d}d`);
-      if (h > 0) parts.push(`${h}h`);
-      if (m > 0 || parts.length > 0) parts.push(`${m}m`);
-
-      setTimeLeft(`Expires in ${parts.join(' ')}`);
+      return parts.join(" ");
     };
-    
-    tick();
-    const id = setInterval(tick, 60000);
-    return () => clearInterval(id);
-  }, [expiryDate, isMounted]);
 
-  // Return nothing until client-side mount — prevents hydration mismatch & "Loading..." flash
-  if (!isMounted) return null;
+    setTimeLeft(calculateTimeLeft());
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
 
-  return <span className="text-red-500 font-semibold">{timeLeft}</span>;
+    return () => clearInterval(timer);
+  }, [endDate, isMounted]);
+
+  if (!isMounted || !timeLeft) return null;
+
+  return (
+    <span className={`font-orbitron font-bold uppercase tracking-widest text-sm ${colorClass}`}>
+      {timeLeft === "Expired" || timeLeft === "Limited Time" ? timeLeft : `Expires in ${timeLeft}`}
+    </span>
+  );
 }
