@@ -147,7 +147,9 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
   }, [lastRefreshed]);
 
   const sortedGamesDeals = useMemo(() => {
-    const allTitles = new Set(deals.map(d => d.title.trim().toLowerCase()));
+    const normalize = (t: string) => t.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const allNormTitles = new Set(deals.map(d => normalize(d.title)));
+    const seenChapters = new Set();
 
     let result = deals.filter(deal => {
       if (deal.end_date && deal.end_date !== 'N/A') {
@@ -160,13 +162,25 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
          }
       }
       
-      // Deduplicate chapters/editions if the base game is already active
       const titleLower = deal.title.trim().toLowerCase();
-      if (titleLower.includes(':')) {
-        const base = titleLower.split(':')[0].trim();
-        if (allTitles.has(base) && titleLower !== base) {
+      let base = titleLower;
+      if (titleLower.includes(':')) base = titleLower.split(':')[0];
+      else if (titleLower.includes('-')) base = titleLower.split('-')[0];
+      
+      const normBase = normalize(base);
+      const normFull = normalize(deal.title);
+
+      // If the exact base game is active, filter out any DLCs/chapters/editions
+      if (allNormTitles.has(normBase) && normBase !== normFull) {
+        return false;
+      }
+
+      // If the base game is missing, but we have multiple "Chapters" or "Episodes" of the same game, only keep the first one
+      if (normBase !== normFull && (titleLower.includes('chapter') || titleLower.includes('episode') || titleLower.includes('part'))) {
+        if (seenChapters.has(normBase)) {
           return false;
         }
+        seenChapters.add(normBase);
       }
       
       return true;
