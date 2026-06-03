@@ -147,6 +147,8 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
   }, [lastRefreshed]);
 
   const sortedGamesDeals = useMemo(() => {
+    const allTitles = new Set(deals.map(d => d.title.trim().toLowerCase()));
+
     let result = deals.filter(deal => {
       if (deal.end_date && deal.end_date !== 'N/A') {
          const endStr = deal.end_date.includes(' ') && !deal.end_date.includes('Z') && !deal.end_date.includes('GMT') 
@@ -157,6 +159,16 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
            return false;
          }
       }
+      
+      // Deduplicate chapters/editions if the base game is already active
+      const titleLower = deal.title.trim().toLowerCase();
+      if (titleLower.includes(':')) {
+        const base = titleLower.split(':')[0].trim();
+        if (allTitles.has(base) && titleLower !== base) {
+          return false;
+        }
+      }
+      
       return true;
     });
 
