@@ -95,7 +95,7 @@ export async function getGameDealById(id: string | number): Promise<GameDeal | n
   // Attempt 1: Direct fetch with browser headers
   try {
     const res = await fetch(primaryUrl, {
-      next: { revalidate: 3600 },
+      cache: "no-store",
       headers: GAMERPOWER_HEADERS,
     });
     
@@ -103,10 +103,17 @@ export async function getGameDealById(id: string | number): Promise<GameDeal | n
     
     if (res.ok) {
       const data = await res.json();
-      if (data && data.status !== "error" && data.status !== "Error" && data.id) {
+      const isValidDeal = 
+        data &&
+        data.id &&
+        String(data.status).toLowerCase() !== "error" &&
+        Number(data.status) !== 0;
+        
+      if (isValidDeal) {
         console.log(`[gamerpower] Direct fetch success for id: ${cleanId}`);
         return formatDeal(data);
       }
+      console.warn(`[gamerpower] Invalid data for ${cleanId}:`, JSON.stringify(data).slice(0, 200));
     }
     console.warn(`[gamerpower] Direct fetch failed for ${cleanId}, trying proxy...`);
   } catch (e) {
@@ -116,15 +123,22 @@ export async function getGameDealById(id: string | number): Promise<GameDeal | n
   // Attempt 2: CORS proxy fallback
   try {
     const proxyRes = await fetch(proxyUrl, {
-      next: { revalidate: 3600 },
+      cache: "no-store",
       headers: { "User-Agent": GAMERPOWER_HEADERS["User-Agent"] },
     });
     if (proxyRes.ok) {
       const data = await proxyRes.json();
-      if (data && data.status !== "error" && data.status !== "Error" && data.id) {
+      const isValidDeal = 
+        data &&
+        data.id &&
+        String(data.status).toLowerCase() !== "error" &&
+        Number(data.status) !== 0;
+        
+      if (isValidDeal) {
         console.log(`[gamerpower] Proxy fetch success for id: ${cleanId}`);
         return formatDeal(data);
       }
+      console.warn(`[gamerpower] Invalid data for ${cleanId}:`, JSON.stringify(data).slice(0, 200));
     }
   } catch (e) {
     console.error(`[gamerpower] Proxy fetch exception for ${cleanId}:`, e);
