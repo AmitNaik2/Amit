@@ -1,3 +1,17 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'DMCA Policy | GamesDealsHub',
+  description: 'GamesDealsHub DMCA policy — how to report copyright infringement and our process for handling Digital Millennium Copyright Act notices.',
+  alternates: { canonical: '/dmca' },
+  openGraph: {
+    title: 'DMCA Policy | GamesDealsHub',
+    description: 'GamesDealsHub DMCA policy — how to report copyright infringement and our process for handling Digital Millennium Copyright Act notices.',
+    url: 'https://www.gamesdealshub.me/dmca',
+    type: 'website',
+  },
+};
+
 export default function Page() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4 md:px-8">

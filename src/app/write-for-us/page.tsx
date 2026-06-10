@@ -1,6 +1,19 @@
+import type { Metadata } from 'next';
 import React from 'react';
 import Link from 'next/link';
 import { Mail, Gamepad2, TrendingUp, Users } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Write For Us | GamesDealsHub',
+  description: 'Join the GamesDealsHub team as a contributor. Write game reviews, deal guides, editorials, and more for thousands of daily gaming readers.',
+  alternates: { canonical: '/write-for-us' },
+  openGraph: {
+    title: 'Write For Us | GamesDealsHub',
+    description: 'Join the GamesDealsHub team as a contributor. Write game reviews, deal guides, editorials, and more for thousands of daily gaming readers.',
+    url: 'https://www.gamesdealshub.me/write-for-us',
+    type: 'website',
+  },
+};
 
 export default function WriteForUsPage() {
   return (
