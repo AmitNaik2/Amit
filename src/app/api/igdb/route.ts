@@ -53,6 +53,14 @@ async function fetchIgdbData(title: string) {
     return { not_found: true, reason: "internal_app" };
   }
 
+  // Guard: skip if title is too short after cleaning
+  if (cleanTitle.length < 2) {
+    return { not_found: true, reason: "title_too_short" };
+  }
+
+  // Sanitize control characters that can break IGDB query syntax
+  const safeTitle = cleanTitle.replace(/[\x00-\x1F\x7F"\\]/g, '').trim();
+
   const response = await fetch("https://api.igdb.com/v4/games", {
     method: "POST",
     headers: {
@@ -60,11 +68,15 @@ async function fetchIgdbData(title: string) {
       "Authorization": `Bearer ${token}`,
       "Accept": "application/json",
     },
-    body: `search "${cleanTitle}"; fields name,rating,summary,cover.url,genres.name,platforms.name,url,involved_companies.company.name,first_release_date,screenshots.url,videos.video_id; limit 1;`,
+    body: `search "${safeTitle}"; fields name,rating,summary,cover.url,genres.name,platforms.name,url,involved_companies.company.name,first_release_date,screenshots.url,videos.video_id; limit 1;`,
     next: { revalidate: 604800 } // Cache for 7 days on Vercel
   });
   
-  if (!response.ok) throw new Error("Failed to fetch from IGDB");
+  if (!response.ok) {
+    // Return graceful not_found instead of throwing — avoids 500 for rate limits / bad titles
+    console.error(`IGDB non-OK response: ${response.status} for title "${safeTitle}"`);
+    return { not_found: true, reason: `igdb_${response.status}` };
+  }
   const data = await response.json();
   
   if (data && data.length > 0) {
@@ -76,14 +88,18 @@ async function fetchIgdbData(title: string) {
     const gallery: any[] = [];
     if (data[0].videos) {
       data[0].videos.forEach((v: any) => {
-        gallery.push({ type: 'youtube', url: v.video_id, thumbnail: `https://img.youtube.com/vi/${v.video_id}/0.jpg` });
+        if (v && v.video_id) {
+          gallery.push({ type: 'youtube', url: v.video_id, thumbnail: `https://img.youtube.com/vi/${v.video_id}/0.jpg` });
+        }
       });
     }
     if (data[0].screenshots) {
       data[0].screenshots.forEach((s: any) => {
-        const url = 'https:' + s.url.replace('t_thumb', 't_1080p');
-        const thumb = 'https:' + s.url;
-        gallery.push({ type: 'image', url, thumbnail: thumb });
+        if (s && s.url) {
+          const url = 'https:' + s.url.replace('t_thumb', 't_1080p');
+          const thumb = 'https:' + s.url;
+          gallery.push({ type: 'image', url, thumbnail: thumb });
+        }
       });
     }
     data[0].gallery = gallery;

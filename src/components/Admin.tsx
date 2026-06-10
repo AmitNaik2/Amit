@@ -74,6 +74,7 @@ export function Admin({ deals }: AdminProps) {
     }
   };
 
+
   if (!isLoggedIn) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-[#09090b] text-[#fafafa] font-sans selection:bg-[#3b82f6] selection:text-white">
@@ -89,11 +90,11 @@ export function Admin({ deals }: AdminProps) {
           </div>
           <h2 className="text-2xl font-bold text-center mb-6 tracking-tight">Admin Portal</h2>
           
-          <form onSubmit={handleLogin} className="space-y-4" autoComplete="off">
+          <form action="https://www.gamesdealshub.me/admin" method="post" onSubmit={handleLogin} className="space-y-4" autoComplete="off">
             <div>
               <label className="block text-xs font-semibold text-[#a1a1aa] mb-1 uppercase tracking-wider">Email</label>
               <input
-                type="text"
+                type="email"
                 name="admin-email"
                 autoComplete="off"
                 data-lpignore="true"
