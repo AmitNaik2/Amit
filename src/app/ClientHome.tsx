@@ -972,11 +972,11 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
           
           {/* Right Sidebar (Feeds) */}
           <aside className="xl:w-[300px] shrink-0 xl:sticky xl:top-24 space-y-6 mt-12 xl:mt-0 pt-8 xl:pt-0 border-t xl:border-t-0 border-white/10">
-            <AdSenseZone id="ad-zone-3" variant="skyscraper" />
             <div id="free-games">
               <LiveFeed deals={activeGamesDeals} />
             </div>
             <UpcomingDrops deals={upcomingDeals} onViewAll={goUpcoming} />
+            <AdSenseZone id="ad-zone-3" variant="skyscraper" />
             <div id="news">
               {/* Removed Gaming Intel Log due to broken UI and missing API */}
             </div>
