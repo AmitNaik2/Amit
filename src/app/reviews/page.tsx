@@ -3,6 +3,11 @@ import { AuthorBox } from "@/components/AuthorBox";
 import { JsonLd } from "@/components/JsonLd";
 
 const siteUrl = "https://www.gamesdealshub.me";
+const ogImage = `/og?${new URLSearchParams({
+  title: "PC Game Reviews",
+  platform: "Reviews",
+  expiry: "Value-focused",
+}).toString()}`;
 
 export const metadata: Metadata = {
   title: "PC Game Reviews | GamesDealsHub Recommendations",
@@ -22,14 +27,14 @@ export const metadata: Metadata = {
     description: "Practical PC game reviews for deal hunters, backlog builders, and players deciding what to claim or buy.",
     url: `${siteUrl}/reviews`,
     siteName: "GamesDealsHub",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "GamesDealsHub Reviews" }],
+    images: [{ url: ogImage, width: 1200, height: 630, alt: "GamesDealsHub Reviews" }],
     type: "article",
   },
   twitter: {
     card: "summary_large_image",
     title: "PC Game Reviews | GamesDealsHub",
     description: "Practical reviews for PC game deal hunters.",
-    images: ["/og-image.jpg"],
+    images: [ogImage],
   },
 };
 

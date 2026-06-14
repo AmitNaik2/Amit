@@ -3,6 +3,11 @@ import { AuthorBox } from "@/components/AuthorBox";
 import { JsonLd } from "@/components/JsonLd";
 
 const siteUrl = "https://www.gamesdealshub.me";
+const ogImage = `/og?${new URLSearchParams({
+  title: "Free PC Game Guides",
+  platform: "Guides",
+  expiry: "Claim smarter",
+}).toString()}`;
 
 export const metadata: Metadata = {
   title: "Free PC Game Guides | Epic, Steam, GOG & Deal Tracking",
@@ -24,14 +29,14 @@ export const metadata: Metadata = {
       "Step-by-step guides for claiming free games, tracking giveaway windows, and building a PC library across Epic, Steam, GOG, and more.",
     url: `${siteUrl}/guides`,
     siteName: "GamesDealsHub",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "GamesDealsHub Guides" }],
+    images: [{ url: ogImage, width: 1200, height: 630, alt: "GamesDealsHub Guides" }],
     type: "article",
   },
   twitter: {
     card: "summary_large_image",
     title: "Free PC Game Guides | GamesDealsHub",
     description: "Claim free PC games safely and never miss a giveaway window.",
-    images: ["/og-image.jpg"],
+    images: [ogImage],
   },
 };
 

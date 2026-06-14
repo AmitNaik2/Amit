@@ -109,7 +109,7 @@ export async function generateMetadata(
   const ogImage = `/og?${new URLSearchParams({
     title: game.title,
     platform: game.platforms.split(',')[0] || 'PC',
-    expiry: game.end_date && game.end_date !== "N/A" ? game.end_date : "Limited Time",
+    expiry: game.end_date && game.end_date !== "N/A" ? `Free until ${game.end_date}` : "Limited Time",
     ...(game.image ? { image: game.image } : {}),
   }).toString()}`;
 

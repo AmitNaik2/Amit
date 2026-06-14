@@ -4,6 +4,11 @@ import { AuthorBox } from "@/components/AuthorBox";
 import { JsonLd } from "@/components/JsonLd";
 
 const siteUrl = "https://www.gamesdealshub.me";
+const ogImage = `/og?${new URLSearchParams({
+  title: "PC Gaming Deal News",
+  platform: "News",
+  expiry: "Updated weekly",
+}).toString()}`;
 
 export const metadata: Metadata = {
   title: "PC Gaming Deal News | Free Games, Storefront Updates & Giveaway Trends",
@@ -23,14 +28,14 @@ export const metadata: Metadata = {
     description: "News and analysis for free PC game drops, storefront promotions, and deal-tracking trends.",
     url: `${siteUrl}/news`,
     siteName: "GamesDealsHub",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "GamesDealsHub News" }],
+    images: [{ url: ogImage, width: 1200, height: 630, alt: "GamesDealsHub News" }],
     type: "article",
   },
   twitter: {
     card: "summary_large_image",
     title: "PC Gaming Deal News | GamesDealsHub",
     description: "Free game news, storefront trends, and deal tracking analysis.",
-    images: ["/og-image.jpg"],
+    images: [ogImage],
   },
 };
 
