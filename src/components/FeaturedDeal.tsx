@@ -34,8 +34,9 @@ export function FeaturedDeal({ deal }: { deal: GameDeal }) {
           alt={deal.title} 
           fill
           sizes="100vw"
+          loading="eager"
           className="w-full h-full object-cover opacity-50 group-hover:scale-110 group-hover:opacity-70 transition-all duration-1000 ease-out" 
-          priority
+          priority={true}
         />
       </div>
       <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-[#050816]/60 to-transparent z-10"></div>
