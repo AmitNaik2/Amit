@@ -92,6 +92,12 @@ const schemas = [
   },
   {
     "@context": "https://schema.org",
+    "@type": "Person",
+    name: "GamesDealsHub Team",
+    url: "https://www.gamesdealshub.me/about",
+  },
+  {
+    "@context": "https://schema.org",
     "@type": "Product",
     name: "GamesDealsHub Free Game News",
     description: "Original news articles about free PC games, Epic Games giveaways, and GamesDealsHub tracking methods.",
@@ -145,6 +151,7 @@ export default function NewsPage() {
           <div className="space-y-10">
             {articles.map((article) => (
               <article key={article.title} className="rounded-2xl border border-white/10 bg-[#0F172A]/80 p-6 md:p-10">
+                <AuthorBox className="mb-6" />
                 <p className="text-[10px] font-orbitron font-bold uppercase tracking-widest text-[#8B5CF6]">
                   {article.label}
                 </p>
@@ -154,7 +161,6 @@ export default function NewsPage() {
                     <p key={paragraph.slice(0, 70)}>{paragraph}</p>
                   ))}
                 </div>
-                <AuthorBox />
               </article>
             ))}
           </div>

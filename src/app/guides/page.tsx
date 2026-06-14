@@ -104,6 +104,12 @@ function pageJsonLd() {
     },
     {
       "@context": "https://schema.org",
+      "@type": "Person",
+      name: "GamesDealsHub Team",
+      url: "https://www.gamesdealshub.me/about",
+    },
+    {
+      "@context": "https://schema.org",
       "@type": "Product",
       name: "GamesDealsHub Free PC Game Guides",
       description: "Guides for tracking, verifying, and claiming free PC game giveaways.",
@@ -159,6 +165,7 @@ export default function GuidesPage() {
                 key={guide.title}
                 className="rounded-2xl border border-white/10 bg-[#0F172A]/80 p-6 shadow-[0_0_30px_rgba(6,182,212,0.05)] md:p-10"
               >
+                <AuthorBox className="mb-6" />
                 <p className="text-[10px] font-orbitron font-bold uppercase tracking-widest text-[#8B5CF6]">
                   Guide {index + 1}
                 </p>
@@ -169,7 +176,6 @@ export default function GuidesPage() {
                     <p key={paragraph.slice(0, 80)}>{paragraph}</p>
                   ))}
                 </div>
-                <AuthorBox />
               </article>
             ))}
           </div>

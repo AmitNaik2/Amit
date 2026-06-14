@@ -140,6 +140,12 @@ const schemas = [
   },
   {
     "@context": "https://schema.org",
+    "@type": "Person",
+    name: "GamesDealsHub Team",
+    url: "https://www.gamesdealshub.me/about",
+  },
+  {
+    "@context": "https://schema.org",
     "@type": "Product",
     name: "GamesDealsHub Free Game Reviews",
     description: "Editorial reviews of currently free games from the active GamesDealsHub giveaway feed.",
@@ -191,6 +197,7 @@ export default function ReviewsPage() {
           <div className="space-y-10">
             {reviews.map((review) => (
               <article key={review.title} className="rounded-2xl border border-white/10 bg-[#0F172A]/80 p-6 md:p-10">
+                <AuthorBox className="mb-6" />
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <p className="text-[10px] font-orbitron font-bold uppercase tracking-widest text-[#8B5CF6]">
                     {review.product}
@@ -214,7 +221,6 @@ export default function ReviewsPage() {
                     </section>
                   ))}
                 </div>
-                <AuthorBox />
               </article>
             ))}
           </div>
