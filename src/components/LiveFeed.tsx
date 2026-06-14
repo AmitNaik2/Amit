@@ -1,11 +1,37 @@
-﻿"use client";
+"use client";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { type GameDeal } from "../types";
-import { Zap, Activity } from "lucide-react";
+import { Activity } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
 export function LiveFeed({ deals }: { deals: GameDeal[] }) {
+  const [visibleDeals, setVisibleDeals] = useState<GameDeal[]>([]);
+
+  useEffect(() => {
+    if (deals && deals.length > 0) {
+      setVisibleDeals(deals.slice(0, 5));
+    }
+  }, [deals]);
+
+  useEffect(() => {
+    if (!deals || deals.length <= 5) return;
+
+    const interval = setInterval(() => {
+      setVisibleDeals((prev) => {
+        if (prev.length === 0) return deals.slice(0, 5);
+        const lastItem = prev[prev.length - 1];
+        const lastIndex = deals.findIndex((d) => d.id === lastItem.id);
+        const nextIndex = (lastIndex + 1) % deals.length;
+        const nextItem = deals[nextIndex];
+        return [...prev.slice(1), nextItem];
+      });
+    }, 4000); // Cycle every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [deals]);
+
   if (!deals || deals.length === 0) return null;
 
   return (
@@ -17,38 +43,51 @@ export function LiveFeed({ deals }: { deals: GameDeal[] }) {
         <h3 className="text-[11px] font-orbitron font-bold uppercase tracking-widest text-[#F9FAFB] glow-text">Live Intelligence Feed</h3>
       </div>
       
-      <div className="space-y-4">
-        {deals.slice(0, 5).map((deal, i) => (
-          <Link href={`/game/${deal.id}`} key={`${deal.id}-feed`}>
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="flex gap-3 items-start border-b border-white/5 pb-4 last:border-0 last:pb-0 hover:bg-white/5 p-2 -mx-2 rounded-xl transition-all duration-300 cursor-pointer hover:pl-2 group/item"
+      <div className="space-y-4 relative min-h-[340px]">
+        <AnimatePresence initial={false} mode="popLayout">
+          {visibleDeals.map((deal, index) => (
+            <motion.div
+              key={`${deal.id}-feed`}
+              layout
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 40,
+                opacity: { duration: 0.2 }
+              }}
             >
-              <div className="relative w-12 h-12 rounded-lg shrink-0 overflow-hidden bg-black/50 border border-white/10 group-hover/item:border-[#06B6D4]/50 transition-colors">
-                 <Image
-                   src={deal.thumbnail || deal.image || "/next.svg"}
-                   alt={deal.title}
-                   fill
-                   sizes="48px"
-                   loading="lazy"
-                   className="object-cover opacity-80 group-hover/item:opacity-100 transition-opacity"
-                 />
-              </div>
-              <div className="flex-1">
-                <p className="text-[11px] font-orbitron font-bold text-white mb-1.5 line-clamp-1 group-hover/item:text-[#8B5CF6] transition-colors">{deal.title}</p>
-                <div className="flex items-center gap-1.5 text-[9px] font-poppins uppercase tracking-widest text-[#06B6D4]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#06B6D4] animate-pulse shadow-[0_0_5px_rgba(6,182,212,0.8)]"></span>
-                    Asset Identified
+              <Link href={`/game/${deal.id}`} className="block">
+                <div 
+                  className={`flex gap-3 items-start border-b border-white/5 pb-4 hover:bg-white/5 p-2 -mx-2 rounded-xl transition-all duration-300 cursor-pointer hover:pl-2 group/item ${
+                    index === visibleDeals.length - 1 ? "border-b-0 pb-0" : ""
+                  }`}
+                >
+                  <div className="relative w-12 h-12 rounded-lg shrink-0 overflow-hidden bg-black/50 border border-white/10 group-hover/item:border-[#06B6D4]/50 transition-colors">
+                     <Image
+                       src={deal.thumbnail || deal.image || "/next.svg"}
+                       alt={deal.title}
+                       fill
+                       sizes="48px"
+                       loading="lazy"
+                       className="object-cover opacity-80 group-hover/item:opacity-100 transition-opacity"
+                     />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[11px] font-orbitron font-bold text-white mb-1.5 line-clamp-1 group-hover/item:text-[#8B5CF6] transition-colors">{deal.title}</p>
+                    <div className="flex items-center gap-1.5 text-[9px] font-poppins uppercase tracking-widest text-[#06B6D4]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#06B6D4] animate-pulse shadow-[0_0_5px_rgba(6,182,212,0.8)]"></span>
+                        Asset Identified
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </motion.div>
-          </Link>
-        ))}
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   );
 }
-
-
