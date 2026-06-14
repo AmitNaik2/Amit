@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, type FormEvent, useMemo } from "react";
+import { useState, useEffect, type CSSProperties, type FormEvent, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Gamepad2, RefreshCw, AlertCircle, RefreshCcw, CheckCircle2, Search, Filter, Info } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -28,13 +28,53 @@ import { TopNavbar } from "../components/TopNavbar";
 import { HeroSection } from "../components/HeroSection";
 import { SkeletonCardGrid } from "../components/SkeletonCard";
 import { EmailSubscription } from "../components/EmailSubscription";
-import { AdSlot } from "../components/AdSlot";
 
 
 
 interface ClientHomeProps {
   initialActiveGames?: GameDeal[];
   initialUpcomingGames?: any[];
+}
+
+type AdSenseZoneVariant = "leaderboard" | "rectangle" | "skyscraper";
+
+const adZoneStyles: Record<AdSenseZoneVariant, CSSProperties> = {
+  leaderboard: {
+    minHeight: "90px",
+    width: "100%",
+    margin: "1rem 0",
+  },
+  rectangle: {
+    minHeight: "250px",
+    width: "100%",
+    margin: "1rem 0",
+  },
+  skyscraper: {
+    minHeight: "600px",
+    width: "300px",
+  },
+};
+
+function AdSenseZone({ id, variant }: { id: string; variant: AdSenseZoneVariant }) {
+  return (
+    <div id={id} style={adZoneStyles[variant]}>
+      {variant === "leaderboard" && (
+        <>
+          {/* AdSense: Leaderboard 728x90 */}
+        </>
+      )}
+      {variant === "rectangle" && (
+        <>
+          {/* AdSense: Rectangle 336x280 */}
+        </>
+      )}
+      {variant === "skyscraper" && (
+        <>
+          {/* AdSense: Skyscraper 300x600 */}
+        </>
+      )}
+    </div>
+  );
 }
 
 export default function App({ initialActiveGames = [], initialUpcomingGames = [] }: ClientHomeProps) {
@@ -467,7 +507,7 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
           onTrendingClick={goUpcoming}
         />
 
-        <AdSlot id="home-below-hero" className="mb-8" />
+        <AdSenseZone id="ad-zone-1" variant="leaderboard" />
 
               {/* Error State */}
               {error && (
@@ -651,10 +691,9 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
                             onRemind={openSubscribeModal}
                           />
                           {(index + 1) % 6 === 0 && (
-                            <AdSlot
-                              id={`deals-inline-${index + 1}`}
-                              className="md:col-span-2"
-                            />
+                            <div className="md:col-span-2">
+                              <AdSenseZone id={index === 5 ? "ad-zone-2" : `ad-zone-2-${index + 1}`} variant="rectangle" />
+                            </div>
                           )}
                         </div>
                       ))}
@@ -720,7 +759,9 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
                             onRemind={openSubscribeModal}
                           />
                           {(index + 1) % 6 === 0 && (
-                            <AdSlot id={`dlc-inline-${index + 1}`} className="md:col-span-2" />
+                            <div className="md:col-span-2">
+                              <AdSenseZone id={index === 5 ? "ad-zone-2" : `ad-zone-2-${index + 1}`} variant="rectangle" />
+                            </div>
                           )}
                         </div>
                       ))}
@@ -821,7 +862,9 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
                             onRemind={openSubscribeModal}
                           />
                           {(index + 1) % 6 === 0 && (
-                            <AdSlot id={`premium-inline-${index + 1}`} className="md:col-span-2" />
+                            <div className="md:col-span-2">
+                              <AdSenseZone id={index === 5 ? "ad-zone-2" : `ad-zone-2-${index + 1}`} variant="rectangle" />
+                            </div>
                           )}
                         </div>
                       ))}
@@ -928,7 +971,8 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
           </div>
           
           {/* Right Sidebar (Feeds) */}
-          <aside className="xl:w-72 shrink-0 xl:sticky xl:top-24 space-y-6 mt-12 xl:mt-0 pt-8 xl:pt-0 border-t xl:border-t-0 border-white/10">
+          <aside className="xl:w-[300px] shrink-0 xl:sticky xl:top-24 space-y-6 mt-12 xl:mt-0 pt-8 xl:pt-0 border-t xl:border-t-0 border-white/10">
+            <AdSenseZone id="ad-zone-3" variant="skyscraper" />
             <div id="free-games">
               <LiveFeed deals={activeGamesDeals} />
             </div>
@@ -948,7 +992,7 @@ export default function App({ initialActiveGames = [], initialUpcomingGames = []
       </main>
 
       <div className="container mx-auto max-w-7xl px-4">
-        <AdSlot id="above-footer" />
+        <AdSenseZone id="ad-zone-4" variant="leaderboard" />
       </div>
 
       <footer className="mt-20 border-t border-[#06B6D4]/30 bg-[#050816]">
