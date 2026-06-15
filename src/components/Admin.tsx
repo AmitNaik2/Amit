@@ -30,11 +30,19 @@ interface AdminProps {
   deals: GameDeal[];
 }
 
+type AdminHealthSummary = {
+  totalOpen: number;
+  criticalIssues: number;
+  lastSystemScan: string | null;
+};
+
 export function Admin({ deals }: AdminProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [adminToken, setAdminToken] = useState("");
+  const [healthSummary, setHealthSummary] = useState<AdminHealthSummary | null>(null);
   
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -65,6 +73,10 @@ export function Admin({ deals }: AdminProps) {
       
       if (data.success) {
         setIsLoggedIn(true);
+        if (data.token) {
+          localStorage.setItem("gdh_admin_token", data.token);
+          setAdminToken(data.token);
+        }
         setError("");
       } else {
         setError(data.message || "Invalid credentials.");
@@ -73,6 +85,21 @@ export function Admin({ deals }: AdminProps) {
       setError("An error occurred during login.");
     }
   };
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    const token = adminToken || localStorage.getItem("gdh_admin_token") || "";
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    fetch("/api/admin/system-health", { headers, credentials: "include" })
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data?.summary) setHealthSummary(data.summary);
+      })
+      .catch(() => setHealthSummary(null));
+  }, [adminToken, isLoggedIn]);
 
 
   if (!isLoggedIn) {
@@ -141,6 +168,8 @@ export function Admin({ deals }: AdminProps) {
     }
   };
 
+  const systemStatus = getAdminSystemStatus(healthSummary);
+
   return (
     <div className="flex h-screen bg-[#09090b] text-[#fafafa] font-sans overflow-hidden selection:bg-[#3b82f6] selection:text-white">
       
@@ -180,12 +209,18 @@ export function Admin({ deals }: AdminProps) {
           
           <NavItem icon={Sparkles} label="AI Assistant" active={activeTab === 'ai'} onClick={() => setActiveTab('ai')} open={sidebarOpen} />
           <NavItem icon={Activity} label="Performance" active={activeTab === 'performance'} onClick={() => setActiveTab('performance')} open={sidebarOpen} />
+          <NavItem icon={ShieldAlert} label="System Health" active={false} onClick={() => window.location.assign('/admin/system-health')} open={sidebarOpen} />
           <NavItem icon={Settings} label="Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} open={sidebarOpen} />
         </div>
 
         <div className="p-3 border-t border-[#3f3f46]">
           <button 
-            onClick={() => setIsLoggedIn(false)}
+            onClick={() => {
+              setIsLoggedIn(false);
+              setAdminToken("");
+              setHealthSummary(null);
+              localStorage.removeItem("gdh_admin_token");
+            }}
             className="flex items-center gap-3 w-full p-2 rounded-lg text-[#a1a1aa] hover:bg-[#ef4444]/10 hover:text-[#ef4444] transition-colors"
           >
             <LogOut className="w-5 h-5 shrink-0" />
@@ -221,13 +256,15 @@ export function Admin({ deals }: AdminProps) {
           </div>
           
           <div className="flex items-center gap-4">
-             <div className="flex items-center gap-2 px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-full text-[#22c55e] text-xs font-bold tracking-wide">
-                <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse"></span>
-                ALL SYSTEMS OPERATIONAL
+             <div className={cn("flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wide border", systemStatus.className)}>
+                <span className={cn("w-2 h-2 rounded-full", systemStatus.dotClassName)}></span>
+                {systemStatus.label}
              </div>
              <button className="text-[#a1a1aa] hover:text-white transition-colors relative">
                <Bell className="w-5 h-5" />
-               <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-[#3b82f6]"></span>
+               {healthSummary && healthSummary.totalOpen > 0 && (
+                 <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-[#ef4444]"></span>
+               )}
              </button>
              <button className="text-[#a1a1aa] hover:text-white transition-colors">
                <Sun className="w-5 h-5" />
@@ -271,6 +308,38 @@ function NavItem({ icon: Icon, label, active, onClick, open }: { icon: any, labe
       {open && <span className="text-sm font-medium whitespace-nowrap">{label}</span>}
     </button>
   );
+}
+
+function getAdminSystemStatus(summary: AdminHealthSummary | null) {
+  if (!summary?.lastSystemScan) {
+    return {
+      label: "SYSTEM HEALTH UNKNOWN",
+      className: "bg-[#3f3f46]/30 border-[#3f3f46] text-[#a1a1aa]",
+      dotClassName: "bg-[#a1a1aa]",
+    };
+  }
+
+  if (summary.criticalIssues > 0) {
+    return {
+      label: `${summary.criticalIssues} CRITICAL ISSUE${summary.criticalIssues === 1 ? "" : "S"}`,
+      className: "bg-[#ef4444]/10 border-[#ef4444]/30 text-[#ef4444]",
+      dotClassName: "bg-[#ef4444] animate-pulse",
+    };
+  }
+
+  if (summary.totalOpen > 0) {
+    return {
+      label: `${summary.totalOpen} OPEN ISSUE${summary.totalOpen === 1 ? "" : "S"}`,
+      className: "bg-[#eab308]/10 border-[#eab308]/30 text-[#eab308]",
+      dotClassName: "bg-[#eab308] animate-pulse",
+    };
+  }
+
+  return {
+    label: "CORE SYSTEMS CLEAR",
+    className: "bg-[#22c55e]/10 border-[#22c55e]/20 text-[#22c55e]",
+    dotClassName: "bg-[#22c55e]",
+  };
 }
 
 function CommandPalette({ onClose }: { onClose: () => void }) {

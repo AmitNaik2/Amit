@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/system-health",
+      "schedule": "*/30 * * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
